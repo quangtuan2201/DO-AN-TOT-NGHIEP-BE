@@ -1,5 +1,9 @@
 
 let getHomepage = (req , res)=> {
-     return res.send("Hello word from Controller")
+     return res.render('homepage.ejs');
 };
-module.exports = {getHomepage};
+//
+let getAboutpage = (req , res) => {
+     return res.render('about.ejs');
+}
+module.exports = {getHomepage,getAboutpage};
