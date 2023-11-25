@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>EDIT DATA</title>
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+     <!-- jQuery library -->
+     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+
+     <!-- Popper JS -->
+     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+     <!-- Latest compiled JavaScript -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+     <h1>
+          <%=user%>
+     </h1>
+     <div class="container">
+          <form action="/put-crud" method="post">
+               <div class="form-group">
+                    <label for="exampleInputEmail1">Email address</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                         placeholder="Enter email" name="email" value="<%=user.email %>">
+
+               </div>
+               <div class="form-group">
+                    <label for="exampleInputEmail1">First Name</label>
+                    <input t class="form-control" id="exampleInputEmail1" name="firstName" placeholder="Enter email"
+                         value="<%=user.firstName%>">
+
+               </div>
+               <div class="form-group">
+                    <label for="exampleInputEmail1">Last Name</label>
+                    <input class="form-control" id="exampleInputEmail1" name="lastName" placeholder="Enter email"
+                         value="<%=user.lastName%>">
+
+               </div>
+               <div class="form-group">
+                    <label for="exampleInputEmail1">Phone</label>
+                    <input class="form-control" id="exampleInputEmail1" name="phoneNumber" aria-describedby="emailHelp"
+                         placeholder="Enter email" value="<%=user.phoneNumber%>">
+
+               </div>
+               <input type="text" id="id" name="id" value="<%=user.id%>" hidden>
+               <button type="submit">UPDATE</button>
+          </form>
+     </div>
+
+</body>
+
+</html>

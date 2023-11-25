@@ -34,4 +34,73 @@ let hasPassword = (password) => {
     }
   });
 };
-module.exports = createNewUser;
+//
+let getAllUser = async () => {
+  try {
+    return await db.User.findAll({
+      raw: true,
+    });
+  } catch (err) {
+    return `Get user faild : ${err}`;
+  }
+};
+//[edit-crud]
+const findOneById = async (userId) => {
+  try {
+    const user = await db.User.findOne({
+      where: { id: userId },
+      raw: true,
+    });
+
+    if (user) {
+      return user;
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+    throw err; // Ném lỗi để xử lý sau này (nếu cần)
+  }
+};
+//UpdataUserdata
+const updateUserData = async (data) => {
+  console.log("id update", data.id);
+  try {
+    let user = await db.User.findOne({
+      where: { id: data.id },
+    });
+    if (user) {
+      user.firstName = data.firstName;
+      user.lastName = data.lastName;
+      user.emaill = data.emaill; //
+      user.phoneNumber = data.phoneNumber;
+      // user.gender = data.phoneNumber;
+      user.update = new Date();
+      let result = await user.save();
+    } else {
+      res.send("Khong update duoc thong tin !");
+    }
+    return result;
+  } catch (err) {
+    console.log(`${err}`);
+  }
+};
+const deleteOneUser = async (id) => {
+  try {
+    let action =  db.User.destroy({
+      where: { id },
+      raw: true,
+    });
+    return "Delete success!";
+  } catch (err) {
+    console.log(`deleteOneUser():${err}`);
+  }
+};
+
+module.exports = {
+  createNewUser,
+  getAllUser,
+  findOneById,
+  updateUserData,
+  deleteOneUser,
+};

@@ -4,7 +4,12 @@
     "password": null,
     "database": "test",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "logging":false,
+    "timezone":"+07:00",
+    "charset":"utf-8",
+    "collate":"utf8_general_ci"
+
   },
   "test": {
     "username": "root",
