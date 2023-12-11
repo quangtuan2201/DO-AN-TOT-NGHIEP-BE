@@ -57,9 +57,9 @@ const editUser = async (newUser) => {
       user.address = newUser.address;
       user.phoneNumber = newUser.phoneNumber;
       user.gender = newUser.gender;
-      user.image = newUser.avatar;
-      user.roleId = newUser.role;
-      user.positionId = newUser.position;
+      user.image = newUser.image;
+      user.roleId = newUser.roleId;
+      user.positionId = newUser.positionId;
       user.createdAt = newUser.createdAt;
       user.updatedAt = new Date();
       let result = await user.save();
@@ -110,6 +110,7 @@ const createUser = async (newUser) => {
 };
 const getAllCodeService = async (typeField) => {
   try {
+    console.log("typeField");
     const type = typeField.type;
     const value = typeField.value;
     if (!typeField) {

@@ -6,7 +6,10 @@ const getTopDoctorHome = async (req, res) => {
     if (!limit) {
       limit = 10;
     }
-    let response = await doctorService.getTopDoctorHome(limit, roleId);
+    // if(limit =='AllDoctor'){
+
+    // }
+    let response = await doctorService.getTopDoctorHome(+limit, roleId);
     res.status(200).json(response);
   } catch (error) {
     console.error("error in doctorController :", error);

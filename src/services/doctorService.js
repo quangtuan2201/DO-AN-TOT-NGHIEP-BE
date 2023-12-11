@@ -1,11 +1,11 @@
 import db from "../models/index";
 
-const getTopDoctorHome = async (formLimit, roleId = "R2") => {
+const getTopDoctorHome = async (limit, roleId = "R2") => {
   try {
     let users = await db.User.findAll({
-      limit: parseInt(formLimit),
+      limit,
       order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["password", "image"] },
+      attributes: { exclude: ["password"] },
       where: {
         roleId,
       },
