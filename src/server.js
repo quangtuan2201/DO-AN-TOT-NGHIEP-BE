@@ -12,9 +12,12 @@ let app = express();
 // console.log(app)
 app.use(cors());
 //
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+// Middleware để xử lý giới hạn kích thước dữ liệu JSON
+app.use(bodyParser.json({ limit: "50mb" }));
+// Middleware để xử lý giới hạn kích thước tải lên
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 viewsEngine(app);
 //khởi tạo tuyến đường
 initWebRoutes(app);

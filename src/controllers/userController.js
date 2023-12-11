@@ -13,7 +13,16 @@ const handleLogin = async (req, res) => {
       });
     }
     let user = await userService.checkEmail(email);
-    console.log("Ktra email đã tồn tại :", user);
+    // console.log("Ktra email đã tồn tại :", user);
+    const pass = await hashPassword.comparePasswords(password, user.password);
+    // console.log(
+    //   "check pass:",
+    //   pass,
+    //   "pasInput:",
+    //   password,
+    //   "passGetDb:",
+    //   user.password
+    // );
     const message = user
       ? (await hashPassword.comparePasswords(password, user.password))
         ? "Dang nhap thanh cong"
@@ -87,10 +96,12 @@ const handleDeleteUser = async (req, res) => {
   return res.status(user ? 200 : 404).json(response);
 };
 const handleEditUsers = async (req, res) => {
-  const user = req.body;
+  const updateUser = req.body;
   // const user = await( userId ? userService.getAllUsers(userId.id):'UserId underfined');
-  const newUser = await userService.editUser(user);
-  console.log("newUser:", newUser);
+  if (!updateUser.id) {
+    res.status(400).json({ errCode: 1, error: "User ID is required" });
+  }
+  const newUser = await userService.editUser(updateUser);
   const response = newUser
     ? {
         errCode: 0,
@@ -100,20 +111,21 @@ const handleEditUsers = async (req, res) => {
     : {
         errCode: 1,
         message: "Update user fail",
-        user: undefined,
+        user: {},
       };
   return res.status(newUser ? 200 : 404).json(response);
 };
 const handleCreateUser = async (req, res) => {
   const newUser = req.body;
-  console.log("nenUser", newUser);
   const createUser = await userService.createUser(newUser);
-  console.log("createUser", createUser);
+  // console.log("CREATE_USER in userController.js__1; ", createUser.dataValues);
+  // console.log("CREATE_USER in userController.js__2", createUser);
+  // console.log("CHECK", createUser.dataValues === createUser);
   const response = createUser
     ? {
         errCode: 0,
         message: "Create user success",
-        user: newUser,
+        user: createUser,
       }
     : {
         errCode: 1,
@@ -122,11 +134,49 @@ const handleCreateUser = async (req, res) => {
       };
   return res.status(createUser ? 200 : 400).json(response);
 };
+const getAllCode = async (req, res) => {
+  try {
+    let nameField = req.query.type
+      ? { type: "type", value: req.query.type }
+      : { type: "keyMap", value: req.query.keyMap };
+    let data = await userService.getAllCodeService(nameField);
+    let response = {
+      errCode: 0,
+      data,
+    };
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log(` exception: ${error}`);
+    return res.status(400).json({
+      errCode: -1,
+      errMessage: "Erroe form server !",
+    });
+  }
+};
+const handlUpdateUsers = async (req, res) => {
+  try {
+    const updateFields = req.body;
+    if (!updateFields.id) {
+      res.status(400).json({ errCode: 1, error: "'User ID is required'" });
+    }
+    const user = await userService.updateUser(updateFields);
+    res.status(200).json({
+      errCode: 0,
+      user,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ errCode: 1, error: "An error occurred while updating the user" });
+  }
+};
 
 module.exports = {
   handleLogin,
   handleGetUsers,
   handleDeleteUser,
   handleEditUsers,
+  handlUpdateUsers,
   handleCreateUser,
+  getAllCode,
 };

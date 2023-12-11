@@ -10,6 +10,7 @@ import {
   deleteCRUD,
 } from "../controllers/homeController";
 import userController from "../controllers/userController";
+import doctorController from "../controllers/doctorController";
 
 // console.log(getAboutpage);
 
@@ -30,11 +31,18 @@ let initWebRoutes = (app) => {
   //[POST] /api/users
   router.post("/api/users", userController.handleCreateUser);
   //[GET] : /api/get-all-users
-  router.get("/api/get-all-users", userController.handleGetUsers);
+  router.get("/api/users", userController.handleGetUsers);
   //[PUT] :/api/edit-user
   router.put("/api/users", userController.handleEditUsers);
+  //[PATH]
+  router.patch("/api/users", userController.handlUpdateUsers);
   //[DELETE] /api/delte-user
-  router.delete("/api/delete-user", userController.handleDeleteUser);
+  router.delete("/api/users", userController.handleDeleteUser);
+  //[GET] /allcode
+  router.get("/api/allcode", userController.getAllCode);
+  //[GET] //api/top-doctor-home
+  router.get("/api/top-doctor-home", doctorController.getTopDoctorHome);
+
   return app.use("/", router);
 };
 module.exports = initWebRoutes;
