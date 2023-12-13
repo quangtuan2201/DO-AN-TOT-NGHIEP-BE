@@ -12,13 +12,79 @@ const getTopDoctorHome = async (req, res) => {
     let response = await doctorService.getTopDoctorHome(+limit, roleId);
     res.status(200).json(response);
   } catch (error) {
-    console.error("error in doctorController :", error);
-    return res.status(200).json({
+    res.status(200).json({
       errCode: -1,
-      message: "Erroe from server !",
+      message: `Error from server ${error.message} !`,
+    });
+  }
+};
+//[GET] /api/get-all-doctors
+const getAllDoctors = async (req, res) => {
+  try {
+    let response = await doctorService.handlAllDoctors();
+    if (response && response.errCode === 0) {
+      res.status(200).json(response);
+    } else {
+      res.status(204).json(response);
+    }
+  } catch (error) {
+    res.status(400).jso({
+      errCode: -1,
+      message: `Error from server ${error.message} !`,
+    });
+  }
+};
+//[POST /api/save-info-doctor
+const saveInfoDoctor = async (req, res) => {
+  try {
+    let newInfoDoctor = req.body;
+    // console.log("new Info doctor: ", newInfoDoctor);
+    if (newInfoDoctor) {
+      const response = await doctorService.handleSaveInfoDoctor(newInfoDoctor);
+      return response.data && response.errCode === 0
+        ? res.status(201).json(response)
+        : res.status(400).json(response);
+    }
+  } catch (error) {
+    res.status(404).json({
+      errCode: -1,
+      message: `Error from server ${error.message} !`,
+    });
+  }
+};
+//[GET] /api/get-detail-doctor-by-id
+const getDetailDoctorById = async (req, res) => {
+  try {
+    const doctorId = req.query.id;
+    console.log("Doctor ID: ", doctorId);
+    if (!doctorId) {
+      res
+        .status(400)
+        .json({ errCode: 1, message: "Missing requeid prsmeter!" });
+    }
+    const info = await doctorService.handleGetDetailDoctorById(doctorId);
+    console.log("InFo detail doctor: ", info);
+    if (info.data && info.errCode === 0) {
+      res.status(200).json({
+        errCode: 0,
+        data: info.data,
+      });
+    } else {
+      res.status(202).json({
+        errCode: 1,
+        data: null,
+      });
+    }
+  } catch (error) {
+    return res.status(404).json({
+      error: -1,
+      message: `Error from server : ${error.message}`,
     });
   }
 };
 module.exports = {
   getTopDoctorHome,
+  getAllDoctors,
+  saveInfoDoctor,
+  getDetailDoctorById,
 };
