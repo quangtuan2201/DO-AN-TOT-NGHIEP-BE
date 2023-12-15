@@ -6,6 +6,8 @@ const handleLogin = async (req, res) => {
   try {
     let email = req.body.email;
     let password = req.body.password;
+    // console.log("Email:", email);
+    // console.log("password: ", password);
     if (!email || !password) {
       return res.status.json({
         success: false,
@@ -14,7 +16,7 @@ const handleLogin = async (req, res) => {
     }
     let user = await userService.checkEmail(email);
     // console.log("Ktra email đã tồn tại :", user);
-    const pass = await hashPassword.comparePasswords(password, user.password);
+    // const pass = await hashPassword.comparePasswords(password, user.password);
     // console.log(
     //   "check pass:",
     //   pass,
@@ -34,13 +36,13 @@ const handleLogin = async (req, res) => {
         : 401
       : 400;
     res.status(status).json({
-      success: status === 200,
+      errCode: 0,
       message: message,
-      user: user ? (message !== "Sai mat khau" ? user : {}) : {},
+      data: user ? (message !== "Sai mat khau" ? user : {}) : {},
     });
   } catch (err) {
     res.status(500).json({
-      success: false,
+      errCode: -1,
       error: `Internal Server Error"${err}"`,
       user: {},
     });
@@ -49,7 +51,7 @@ const handleLogin = async (req, res) => {
 const handleGetUsers = async (req, res) => {
   let userId = req.query.id;
   const users = await userService.getAllUsers(userId);
-  console.log("users", users);
+  // console.log("users", users);
   // if (users.length > 0) {
   //   return res.status(200).json({
   //     errCode: 0,
@@ -79,9 +81,9 @@ const handleGetUsers = async (req, res) => {
 };
 const handleDeleteUser = async (req, res) => {
   const userId = req.query.id;
-  console.log(userId);
+  // console.log(userId);
   const user = await userService.deleteUser(userId);
-  console.log("DELETE user :", user);
+  // console.log("DELETE user :", user);
   const response = user
     ? {
         errCode: 0,

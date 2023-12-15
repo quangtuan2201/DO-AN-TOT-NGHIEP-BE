@@ -38,9 +38,10 @@ const getAllDoctors = async (req, res) => {
 const saveInfoDoctor = async (req, res) => {
   try {
     let newInfoDoctor = req.body;
-    // console.log("new Info doctor: ", newInfoDoctor);
+    console.log("new Info doctor: ", newInfoDoctor);
     if (newInfoDoctor) {
       const response = await doctorService.handleSaveInfoDoctor(newInfoDoctor);
+      console.log("data res controller: ", response);
       return response.data && response.errCode === 0
         ? res.status(201).json(response)
         : res.status(400).json(response);
@@ -82,9 +83,46 @@ const getDetailDoctorById = async (req, res) => {
     });
   }
 };
+// [GET] /api/allcode-schedule-hours
+const allCodeScheduleHours = async (req, res) => {
+  try {
+    const response = await doctorService.handleAllcodeScheduleHours();
+    res.status(200).json({
+      errCode: 0,
+      data: response,
+    });
+    // if (response && response.data) {
+
+    // }
+  } catch (error) {
+    res.status(400).json({
+      errCode: -1,
+      message: `Error from server !${error.message}`,
+    });
+  }
+};
+//[POST] /api/balk-create-schedule
+const bukkCreateSchedule = async (req, res) => {
+  try {
+    console.log("req.body: ", req.body);
+    let info = await doctorService.handlbulkCreateSchedule(req?.body);
+    console.log("INFO: ", info);
+    res.status(200).json({
+      data: info.data,
+      errCode: 0,
+    });
+  } catch (error) {
+    res.status(400).json({
+      errCode: -1,
+      message: "Error from server",
+    });
+  }
+};
 module.exports = {
   getTopDoctorHome,
   getAllDoctors,
   saveInfoDoctor,
   getDetailDoctorById,
+  allCodeScheduleHours,
+  bukkCreateSchedule,
 };

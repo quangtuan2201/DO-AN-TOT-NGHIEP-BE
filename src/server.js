@@ -2,11 +2,12 @@ import express from "express";
 import bodyParser from "body-parser";
 import viewsEngine from "./config/viewEngine";
 import initWebRoutes from "./route/web";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
+require("dotenv").config();
 import connectDB from "./config/connectDB";
 const cors = require("cors");
 // require('dotenv').config();
-dotenv.config();
+// dotenv.config();
 
 let app = express();
 // console.log(app)
@@ -25,7 +26,6 @@ initWebRoutes(app);
 connectDB();
 
 let port = process.env.PORT || 3333;
-console.log(port);
-app.listen(3333, () => {
+app.listen(port, () => {
   console.log(`Backend NodeJS is running on the port ${port}`);
 });

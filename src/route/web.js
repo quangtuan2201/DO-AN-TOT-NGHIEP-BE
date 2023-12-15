@@ -48,6 +48,13 @@ let initWebRoutes = (app) => {
   router.post("/api/save-info-doctor", doctorController.saveInfoDoctor);
   //[GET] /api/detail-doctor
   router.get("/api/detail-doctor-by-id", doctorController.getDetailDoctorById);
+  //[GET] /api/allcode-sechedule-hours
+  router.get(
+    "/api/allcode-schedule-hours",
+    doctorController.allCodeScheduleHours
+  );
+  //[GET] /api/bukk-create-schedule
+  router.post("/api/bulk-create-schedule", doctorController.bukkCreateSchedule);
 
   return app.use("/", router);
 };
