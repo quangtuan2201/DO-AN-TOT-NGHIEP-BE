@@ -49,7 +49,7 @@ const editUser = async (newUser) => {
       attributes: { exclude: ["password"] },
       raw: false,
     });
-    console.log("newUser:", newUser);
+    // console.log("newUser:", newUser);
     if (user) {
       user.email = newUser.email;
       user.firstName = newUser.firstName;
@@ -102,7 +102,7 @@ const createUser = async (newUser) => {
         attributes: { exclude: ["password"] }, // Loại bỏ trường password từ kết quả trả về
       }
     );
-    console.log("RESPONSE: ", response);
+    // console.log("RESPONSE: ", response);
     return response;
   } catch (err) {
     return `User creation failed :${err}`;
@@ -110,7 +110,7 @@ const createUser = async (newUser) => {
 };
 const getAllCodeService = async (typeField) => {
   try {
-    console.log("typeField");
+    // console.log("typeField");
     const type = typeField.type;
     const value = typeField.value;
     if (!typeField) {

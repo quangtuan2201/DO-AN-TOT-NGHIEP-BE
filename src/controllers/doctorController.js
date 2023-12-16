@@ -38,10 +38,10 @@ const getAllDoctors = async (req, res) => {
 const saveInfoDoctor = async (req, res) => {
   try {
     let newInfoDoctor = req.body;
-    console.log("new Info doctor: ", newInfoDoctor);
+    // console.log("new Info doctor: ", newInfoDoctor);
     if (newInfoDoctor) {
       const response = await doctorService.handleSaveInfoDoctor(newInfoDoctor);
-      console.log("data res controller: ", response);
+      // console.log("data res controller: ", response);
       return response.data && response.errCode === 0
         ? res.status(201).json(response)
         : res.status(400).json(response);
@@ -57,14 +57,14 @@ const saveInfoDoctor = async (req, res) => {
 const getDetailDoctorById = async (req, res) => {
   try {
     const doctorId = req.query.id;
-    console.log("Doctor ID: ", doctorId);
+    // console.log("Doctor ID: ", doctorId);
     if (!doctorId) {
       res
         .status(400)
         .json({ errCode: 1, message: "Missing requeid prsmeter!" });
     }
     const info = await doctorService.handleGetDetailDoctorById(doctorId);
-    console.log("InFo detail doctor: ", info);
+    // console.log("InFo detail doctor: ", info);
     if (info.data && info.errCode === 0) {
       res.status(200).json({
         errCode: 0,
@@ -104,9 +104,7 @@ const allCodeScheduleHours = async (req, res) => {
 //[POST] /api/balk-create-schedule
 const bukkCreateSchedule = async (req, res) => {
   try {
-    console.log("req.body: ", req.body);
     let info = await doctorService.handlbulkCreateSchedule(req?.body);
-    console.log("INFO: ", info);
     res.status(200).json({
       data: info.data,
       errCode: 0,
@@ -118,6 +116,34 @@ const bukkCreateSchedule = async (req, res) => {
     });
   }
 };
+//[GET] /api/get-schedule-doctor-by-date
+const getScheduleDoctorByDate = async (req, res) => {
+  try {
+    const doctorId = req?.query?.doctorId;
+    const date = req.query?.date;
+    const response = await doctorService.handlefindScheduleByDate(
+      doctorId,
+      date
+    );
+    if (response) {
+      res.status(200).json({
+        errCode: 0,
+        data: response.data,
+      });
+    } else {
+      res.status(404).json({
+        errCode: 1,
+        message: "",
+        data: [],
+      });
+    }
+  } catch (error) {
+    res.status(404).json({
+      errCode: -1,
+      message: `Error form server !: ${error.message}`,
+    });
+  }
+};
 module.exports = {
   getTopDoctorHome,
   getAllDoctors,
@@ -125,4 +151,5 @@ module.exports = {
   getDetailDoctorById,
   allCodeScheduleHours,
   bukkCreateSchedule,
+  getScheduleDoctorByDate,
 };

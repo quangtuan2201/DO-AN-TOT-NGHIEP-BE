@@ -8,7 +8,6 @@ import _ from "lodash";
 // const max_number_schedule = dotenv.config();
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
-// console.log("max_number_schedule: ", max_number_schedule);
 const getTopDoctorHome = async (limit, roleId = "R2") => {
   try {
     let users = await db.User.findAll({
@@ -33,7 +32,6 @@ const getTopDoctorHome = async (limit, roleId = "R2") => {
       raw: true,
       nest: true,
     });
-    // console.log("Doctor: ", users);
     return {
       errCode: 0,
       data: users.reverse(),
@@ -65,7 +63,6 @@ const handlAllDoctors = async () => {
       // raw: true,
       // nest: true,
     });
-    // console.log("response all doc: ", response);
     if (response && response.length > 0) {
       return {
         errCode: 0,
@@ -87,7 +84,6 @@ const handlAllDoctors = async () => {
 // Handle save info doctor
 const handleSaveInfoDoctor = async (infoDoctor) => {
   try {
-    // console.log("info doctor: ", infoDoctor);
     if (
       !infoDoctor.doctorId ||
       !infoDoctor.contentMarkdown ||
@@ -112,7 +108,6 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           //   raw: true, // Thêm thuộc tính raw để trả về dữ liệu dưới dạng mảng thô
           // }
         );
-        // console.log("response :", response);
         return {
           errCode: 0,
           data: response,
@@ -122,7 +117,6 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           where: { doctorId: +infoDoctor?.doctorId },
           // raw: true,
         });
-        // console.log(`Find doctorId ${infoDoctor.doctorId}:${doctorMarkdown}`);
         if (doctorMarkdown) {
           doctorMarkdown.doctorId = infoDoctor?.doctorId;
           doctorMarkdown.clinicId = infoDoctor?.clinicId;
@@ -132,7 +126,6 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           doctorMarkdown.description = infoDoctor?.description;
           await doctorMarkdown.save();
         }
-        // console.log("Markdown :", markdown);
         return {
           errCode: 0,
           data: doctorMarkdown,
@@ -189,7 +182,6 @@ const handleAllcodeScheduleHours = async () => {
       },
       raw: true,
     });
-    // console.log("response: ", response);
     if (response) {
       return response;
     }
@@ -198,39 +190,49 @@ const handleAllcodeScheduleHours = async () => {
   }
 };
 //handl bulk create Schedule
-const handlbulkCreateSchedule = async (schedule) => {
+const handlbulkCreateSchedule = async (data) => {
   try {
-    if (schedule.length > 0) {
-      schedule = schedule.map((item) => {
+    const { doctorCode, bookingDate, bookingInfoList } = data;
+    if (!doctorCode || !bookingDate || !bookingInfoList) {
+      return {
+        errCode: -1,
+        message: "Mising required param!",
+      };
+    }
+    if (bookingInfoList.length > 0) {
+      bookingInfoList.map((item) => {
         item.maxNumber = +MAX_NUMBER_SCHEDULE;
         return item;
       });
     }
-    //get ALL existing
+    // console.log("-----bookingInfoList:", bookingInfoList);
+    // console.log(
+    //   " doctorId: +doctorCode, date: bookingDate ",
+    //   +doctorCode,
+    //   ",,,",
+    //   bookingDate
+    // );
+    //tìm kiếm tất cả bản ghi schedule dk doctorId và date
     let existing = await db.Schedule.findAll({
-      where: { doctorId: 26, date: 1702746000000 },
+      where: { doctorId: +doctorCode, date: bookingDate },
       attributes: ["timeType", "date", "doctorId", "maxNumber"],
       raw: true,
     });
-    console.log("------------------------");
-    console.log("---existing: ", existing);
-    console.log("------------------------");
-    if (existing && existing.length > 0) {
-      existing = existing.map((item) => {
-        item.date = new Date(item.date).getTime();
-        console.log("---DATE: ", item.date);
-        return item;
-      });
-    }
-    let toCreate = _.differenceWith(schedule, existing, (a, b) => {
-      return a.timeType === b.timeType && a.date === b.date;
+    // console.log("---existing:", existing);
+    //convert type date từ datetime sang
+    // if (existing && existing.length > 0) {
+    //   existing = existing.map((item) => {
+    //     item.date = new Date(item.date).getTime();
+    //     return item;
+    //   });
+    // }
+    //so sanh dư liệu gửi từ client với dữ liệu tìm trên db check xem có bị trùng
+    let toCreate = _.differenceWith(bookingInfoList, existing, (a, b) => {
+      return a.timeType === b.timeType && +a.date === +b.date;
     });
     console.log("---toCreate: ", toCreate);
     if (toCreate && toCreate.length > 0) {
       const response = await db.Schedule.bulkCreate(toCreate);
-      console.log("------------------------");
-      console.log("---quang tuan dev: ", response);
-      console.log("------------------------");
       return {
         errCode: 0,
         data: response,
@@ -239,7 +241,7 @@ const handlbulkCreateSchedule = async (schedule) => {
     } else {
       return {
         errCode: 1,
-        message: "FAIL!",
+        message: "FAIL! create schedule !",
       };
     }
   } catch (error) {
@@ -249,6 +251,44 @@ const handlbulkCreateSchedule = async (schedule) => {
     };
   }
 };
+const handlefindScheduleByDate = async (doctorId, date) => {
+  try {
+    if (!doctorId || !date) {
+      return {
+        errCode: 1,
+        message: "Mising required param!",
+      };
+    }
+    const response = await db.Schedule.findAll({
+      where: {
+        doctorId,
+        date,
+      },
+      include: [
+        {
+          model: db.Allcode,
+          as: "timeTypeData",
+          attributes: ["valueEn", "valueVn"],
+        },
+      ],
+      raw: true,
+      nest: true,
+    });
+    if (!response) {
+      return {
+        errCode: 1,
+        data: [],
+      };
+    } else {
+      return {
+        errCode: 0,
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.error("Fail get schedule doctor by date: ", error.message);
+  }
+};
 module.exports = {
   getTopDoctorHome,
   handlAllDoctors,
@@ -256,4 +296,5 @@ module.exports = {
   handleGetDetailDoctorById,
   handleAllcodeScheduleHours,
   handlbulkCreateSchedule,
+  handlefindScheduleByDate,
 };

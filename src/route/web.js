@@ -55,6 +55,11 @@ let initWebRoutes = (app) => {
   );
   //[GET] /api/bukk-create-schedule
   router.post("/api/bulk-create-schedule", doctorController.bukkCreateSchedule);
+  //[GET] /api/get-schedule-doctor-by-date
+  router.get(
+    "/api/get-schedule-doctor-by-date",
+    doctorController.getScheduleDoctorByDate
+  );
 
   return app.use("/", router);
 };
