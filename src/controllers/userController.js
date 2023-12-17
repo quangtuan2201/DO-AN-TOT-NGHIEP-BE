@@ -51,20 +51,6 @@ const handleLogin = async (req, res) => {
 const handleGetUsers = async (req, res) => {
   let userId = req.query.id;
   const users = await userService.getAllUsers(userId);
-  // console.log("users", users);
-  // if (users.length > 0) {
-  //   return res.status(200).json({
-  //     errCode: 0,
-  //     message: "get users Success ",
-  //     data: users,
-  //   });
-  // } else {
-  //   return res.status(404).json({
-  //     errCode: 1,
-  //     message: "get users fail",
-  //     data: {},
-  //   });
-  // }
   const response =
     users.length > 0
       ? {
@@ -136,9 +122,9 @@ const handleCreateUser = async (req, res) => {
       };
   return res.status(createUser ? 200 : 400).json(response);
 };
-const getAllCode = async (req, res) => {
+const handlGetAllCode = async (req, res) => {
   try {
-    let nameField = req.query.type
+    let nameField = req.query.types
       ? { type: "type", value: req.query.type }
       : { type: "keyMap", value: req.query.keyMap };
     // console.log("type req: ", req.query.type);
@@ -181,5 +167,5 @@ module.exports = {
   handleEditUsers,
   handlUpdateUsers,
   handleCreateUser,
-  getAllCode,
+  handlGetAllCode,
 };

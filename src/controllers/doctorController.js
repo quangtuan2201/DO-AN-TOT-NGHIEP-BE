@@ -128,12 +128,13 @@ const getScheduleDoctorByDate = async (req, res) => {
     if (response) {
       res.status(200).json({
         errCode: 0,
+        message: "Get shcedule hours success",
         data: response.data,
       });
     } else {
       res.status(404).json({
         errCode: 1,
-        message: "",
+        message: "Get schedule hours fail",
         data: [],
       });
     }

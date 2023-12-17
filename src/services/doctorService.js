@@ -205,13 +205,6 @@ const handlbulkCreateSchedule = async (data) => {
         return item;
       });
     }
-    // console.log("-----bookingInfoList:", bookingInfoList);
-    // console.log(
-    //   " doctorId: +doctorCode, date: bookingDate ",
-    //   +doctorCode,
-    //   ",,,",
-    //   bookingDate
-    // );
     //tìm kiếm tất cả bản ghi schedule dk doctorId và date
     let existing = await db.Schedule.findAll({
       where: { doctorId: +doctorCode, date: bookingDate },
@@ -251,6 +244,7 @@ const handlbulkCreateSchedule = async (data) => {
     };
   }
 };
+//Tìm kiếm lịch khám
 const handlefindScheduleByDate = async (doctorId, date) => {
   try {
     if (!doctorId || !date) {
@@ -271,6 +265,9 @@ const handlefindScheduleByDate = async (doctorId, date) => {
           attributes: ["valueEn", "valueVn"],
         },
       ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
       raw: true,
       nest: true,
     });
