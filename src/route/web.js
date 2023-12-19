@@ -60,6 +60,10 @@ let initWebRoutes = (app) => {
     "/api/get-schedule-doctor-by-date",
     doctorController.getScheduleDoctorByDate
   );
+  router.get(
+    "/api/get-info-address-clinic",
+    doctorController.getInfoAddressClinic
+  );
 
   return app.use("/", router);
 };

@@ -38,7 +38,7 @@ const getAllDoctors = async (req, res) => {
 const saveInfoDoctor = async (req, res) => {
   try {
     let newInfoDoctor = req.body;
-    // console.log("new Info doctor: ", newInfoDoctor);
+    console.log("--->New Info doctor: ", newInfoDoctor);
     if (newInfoDoctor) {
       const response = await doctorService.handleSaveInfoDoctor(newInfoDoctor);
       // console.log("data res controller: ", response);
@@ -145,6 +145,23 @@ const getScheduleDoctorByDate = async (req, res) => {
     });
   }
 };
+//[GET] /api/get-info-address-clinic
+const getInfoAddressClinic = async (req, res) => {
+  try {
+    const doctorId = req?.query?.id;
+    const response = await doctorService.handlGetInfoAddressClinic(doctorId);
+    if (response.data && response.errCode === 0) {
+      res.status(200).json(response);
+    } else {
+      res.status(404).json(response);
+    }
+  } catch (error) {
+    res.status(404).json({
+      errCode: -1,
+      message: `Error form server ${error.message}`,
+    });
+  }
+};
 module.exports = {
   getTopDoctorHome,
   getAllDoctors,
@@ -153,4 +170,5 @@ module.exports = {
   allCodeScheduleHours,
   bukkCreateSchedule,
   getScheduleDoctorByDate,
+  getInfoAddressClinic,
 };

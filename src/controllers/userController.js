@@ -124,10 +124,9 @@ const handleCreateUser = async (req, res) => {
 };
 const handlGetAllCode = async (req, res) => {
   try {
-    let nameField = req.query.types
+    let nameField = req.query.type
       ? { type: "type", value: req.query.type }
       : { type: "keyMap", value: req.query.keyMap };
-    // console.log("type req: ", req.query.type);
     let data = await userService.getAllCodeService(nameField);
     let response = {
       errCode: 0,

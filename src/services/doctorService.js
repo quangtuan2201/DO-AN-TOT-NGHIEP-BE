@@ -1,3 +1,4 @@
+import { raw } from "body-parser";
 import db from "../models/index";
 import markdown from "../models/markdown";
 // import dotenv from "dotenv";
@@ -59,11 +60,29 @@ const handlAllDoctors = async () => {
           model: db.Markdown,
           attributes: ["description", "contentHTML", "contentMarkdown"],
         },
+        {
+          model: db.Doctor_Info,
+          attributes: [
+            "count",
+            "priceId",
+            "provinceId",
+            "paymentId",
+            "addressClinic",
+            "nameClinic",
+            "note",
+          ],
+        },
+        // {
+        //   model: db.Allcode,
+        //   as: "provinceData",
+        //   attributes: ["valueEn", "valueVn"],
+        // },
       ],
-      // raw: true,
-      // nest: true,
+      raw: true,
+      nest: true,
     });
     if (response && response.length > 0) {
+      console.log("response: ", response);
       return {
         errCode: 0,
         data: response,
@@ -95,44 +114,83 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
       };
     } else {
       if (infoDoctor.action === "CREATE") {
-        const response = await db.Markdown.create(
+        console.log("CREATE !");
+        const create_markdown = db.Markdown.create(
           {
             doctorId: infoDoctor?.doctorId,
-            clinicId: infoDoctor?.clinicId,
             specialtyId: infoDoctor?.specialtyId,
             contentHTML: infoDoctor?.contentHTML,
             contentMarkdown: infoDoctor?.contentMarkdown,
             description: infoDoctor?.description,
+          },
+          {
+            raw: true, // Thêm thuộc tính raw để trả về dữ liệu dưới dạng mảng thô
           }
-          // {
-          //   raw: true, // Thêm thuộc tính raw để trả về dữ liệu dưới dạng mảng thô
-          // }
         );
+        const create_InfoDoctor = db.Doctor_Info.create(
+          {
+            doctorId: infoDoctor?.doctorId,
+            priceId: infoDoctor?.priceId,
+            provinceId: infoDoctor?.provinceId,
+            paymentId: infoDoctor?.paymentId,
+            addressClinic: infoDoctor?.addressClinic,
+            nameClinic: infoDoctor?.nameClinic,
+            note: infoDoctor?.note,
+          },
+          {
+            raw: true,
+          }
+        );
+
+        const [res_markdown, res_InfoDoctor] = await Promise.all([
+          create_markdown,
+          create_InfoDoctor,
+        ]);
+        // console.log("====>> Res_markdown: ", res_markdown.dataValues);
+        console.log("----------------------");
+        // console.log("====>> Res_InfoDoctor: ", res_InfoDoctor.dataValues);
+        console.log("---------------------");
         return {
           errCode: 0,
-          data: response,
+          data: { ...res_markdown.dataValues, ...res_InfoDoctor.dataValues },
         };
       } else if (infoDoctor.action === "EDIT") {
         let doctorMarkdown = await db.Markdown.findOne({
           where: { doctorId: +infoDoctor?.doctorId },
           // raw: true,
         });
+        let doctorInfo = await db.Doctor_Info.findOne({
+          where: { doctorId: +infoDoctor?.doctorId },
+        });
+        // let [res_markdown , res_InfoDoctor] = await Promise.all([doctorMarkdown , doctorInfo ])
+        console.log("---res_markdown: ", doctorMarkdown);
+        console.log("----res_InfoDoctor: ", doctorInfo);
         if (doctorMarkdown) {
           doctorMarkdown.doctorId = infoDoctor?.doctorId;
           doctorMarkdown.clinicId = infoDoctor?.clinicId;
-          doctorMarkdown.specialtyId = infoDoctor?.specialtyId;
           doctorMarkdown.contentHTML = infoDoctor?.contentHTML;
           doctorMarkdown.contentMarkdown = infoDoctor?.contentMarkdown;
           doctorMarkdown.description = infoDoctor?.description;
           await doctorMarkdown.save();
         }
+        if (doctorInfo) {
+          doctorInfo.doctorId = infoDoctor?.doctorId;
+          doctorInfo.priceId = infoDoctor?.priceId;
+          doctorInfo.paymentId = infoDoctor?.paymentId;
+          doctorInfo.provinceId = infoDoctor?.provinceId;
+          doctorInfo.addressClinic = infoDoctor?.addressClinic;
+          doctorInfo.nameClinic = infoDoctor?.nameClinic;
+          doctorInfo.count = infoDoctor?.count;
+          await doctorInfo.save();
+        }
         return {
           errCode: 0,
-          data: doctorMarkdown,
+          data: { ...doctorMarkdown.dataValues, ...doctorInfo.dataValues },
         };
       }
     }
   } catch (error) {
+    console.log("Fail Create info doctor or update: ", error.message);
     return {
       errCode: -1,
       message: `Fail create info doctor or update ${error.message}`,
@@ -286,6 +344,36 @@ const handlefindScheduleByDate = async (doctorId, date) => {
     console.error("Fail get schedule doctor by date: ", error.message);
   }
 };
+
+//Lấy thông tin địa chỉ phòng khám
+const handlGetInfoAddressClinic = async (doctorId) => {
+  try {
+    if (!doctorId) {
+      throw new Error("The id parameter is required");
+    }
+    const response = await db.Doctor_Info.findOne({
+      where: { doctorId },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+      raw: true,
+    });
+    console.log("response : ", response);
+    if (response) {
+      return {
+        errCode: 0,
+        data: response,
+      };
+    } else {
+      return {
+        errCode: 1,
+        message: "Id does not exist or for some reason",
+      };
+    }
+  } catch (error) {
+    console.log(`Get address info doctor fail ${error.message}`);
+  }
+};
 module.exports = {
   getTopDoctorHome,
   handlAllDoctors,
@@ -294,4 +382,5 @@ module.exports = {
   handleAllcodeScheduleHours,
   handlbulkCreateSchedule,
   handlefindScheduleByDate,
+  handlGetInfoAddressClinic,
 };
