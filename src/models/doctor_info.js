@@ -20,6 +20,16 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "keyMap",
         as: "provinceData",
       });
+      Doctor_Info.belongsTo(models.Allcode, {
+        foreignKey: "paymentId",
+        targetKey: "keyMap",
+        as: "paymentData",
+      });
+      Doctor_Info.belongsTo(models.Allcode, {
+        foreignKey: "priceId",
+        targetKey: "keyMap",
+        as: "priceData",
+      });
     }
   }
   Doctor_Info.init(

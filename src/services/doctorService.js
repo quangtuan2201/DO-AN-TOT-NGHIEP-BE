@@ -354,12 +354,30 @@ const handlGetInfoAddressClinic = async (doctorId) => {
     const response = await db.Doctor_Info.findOne({
       where: { doctorId },
       attributes: {
-        exclude: ["createdAt", "updatedAt"],
+        exclude: ["id", "doctorId", "createdAt", "updatedAt"],
       },
+      include: [
+        {
+          model: db.Allcode,
+          as: "provinceData",
+          attributes: ["valueEn", "valueVn"],
+        },
+        {
+          model: db.Allcode,
+          as: "paymentData",
+          attributes: ["valueEn", "valueVn"],
+        },
+        {
+          model: db.Allcode,
+          as: "priceData",
+          attributes: ["valueEn", "valueVn"],
+        },
+      ],
       raw: true,
+      nest: true,
     });
-    console.log("response : ", response);
     if (response) {
+      console.log("response : ", response);
       return {
         errCode: 0,
         data: response,
