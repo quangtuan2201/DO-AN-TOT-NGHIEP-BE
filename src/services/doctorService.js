@@ -4,7 +4,7 @@ import markdown from "../models/markdown";
 // import dotenv from "dotenv";
 require("dotenv").config();
 import schedule from "../models/schedule";
-import _ from "lodash";
+import _, { includes } from "lodash";
 
 // const max_number_schedule = dotenv.config();
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
@@ -82,7 +82,7 @@ const handlAllDoctors = async () => {
       nest: true,
     });
     if (response && response.length > 0) {
-      console.log("response: ", response);
+      // console.log("response: ", response);
       return {
         errCode: 0,
         data: response,
@@ -114,7 +114,7 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
       };
     } else {
       if (infoDoctor.action === "CREATE") {
-        console.log("CREATE !");
+        // console.log("CREATE !");
         const create_markdown = db.Markdown.create(
           {
             doctorId: infoDoctor?.doctorId,
@@ -147,9 +147,9 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           create_InfoDoctor,
         ]);
         // console.log("====>> Res_markdown: ", res_markdown.dataValues);
-        console.log("----------------------");
+        // console.log("----------------------");
         // console.log("====>> Res_InfoDoctor: ", res_InfoDoctor.dataValues);
-        console.log("---------------------");
+        // console.log("---------------------");
         return {
           errCode: 0,
           data: { ...res_markdown.dataValues, ...res_InfoDoctor.dataValues },
@@ -163,8 +163,8 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           where: { doctorId: +infoDoctor?.doctorId },
         });
         // let [res_markdown , res_InfoDoctor] = await Promise.all([doctorMarkdown , doctorInfo ])
-        console.log("---res_markdown: ", doctorMarkdown);
-        console.log("----res_InfoDoctor: ", doctorInfo);
+        // console.log("---res_markdown: ", doctorMarkdown);
+        // console.log("----res_InfoDoctor: ", doctorInfo);
         if (doctorMarkdown) {
           doctorMarkdown.doctorId = infoDoctor?.doctorId;
           doctorMarkdown.clinicId = infoDoctor?.clinicId;
@@ -281,7 +281,7 @@ const handlbulkCreateSchedule = async (data) => {
     let toCreate = _.differenceWith(bookingInfoList, existing, (a, b) => {
       return a.timeType === b.timeType && +a.date === +b.date;
     });
-    console.log("---toCreate: ", toCreate);
+    // console.log("---toCreate: ", toCreate);
     if (toCreate && toCreate.length > 0) {
       const response = await db.Schedule.bulkCreate(toCreate);
       return {
@@ -321,6 +321,11 @@ const handlefindScheduleByDate = async (doctorId, date) => {
           model: db.Allcode,
           as: "timeTypeData",
           attributes: ["valueEn", "valueVn"],
+        },
+        {
+          model: db.User,
+          as: "doctorData",
+          attributes: ["firstName", "lastName"],
         },
       ],
       attributes: {
@@ -377,7 +382,7 @@ const handlGetInfoAddressClinic = async (doctorId) => {
       nest: true,
     });
     if (response) {
-      console.log("response : ", response);
+      // console.log("response : ", response);
       return {
         errCode: 0,
         data: response,
@@ -392,6 +397,74 @@ const handlGetInfoAddressClinic = async (doctorId) => {
     console.log(`Get address info doctor fail ${error.message}`);
   }
 };
+
+// Lấy thông tin riêng tư của bác sĩ
+const handleGetProfileDoctorById = async (doctorId) => {
+  try {
+    if (!doctorId) {
+      return {
+        errCode: 1,
+        message: "Mising required param!",
+      };
+    }
+    const response = await db.User.findOne({
+      where: {
+        id: +doctorId,
+      },
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: db.Allcode,
+          as: "positionData",
+          attributes: ["valueEn", "valueVn"],
+        },
+        {
+          model: db.Markdown,
+          attributes: ["description", "contentHTML", "contentMarkdown"],
+        },
+        {
+          model: db.Doctor_Info,
+          attributes: {
+            exclude: ["id", "doctorId"],
+          },
+          include: [
+            {
+              model: db.Allcode,
+              as: "paymentData",
+              attributes: ["valueEn", "valueVn"],
+            },
+            {
+              model: db.Allcode,
+              as: "priceData",
+              attributes: ["valueEn", "valueVn"],
+            },
+          ],
+        },
+      ],
+
+      raw: true,
+      nest: true,
+    });
+    if (response && response.image) {
+      response.image = new Buffer(response.image).toString("binary");
+    }
+    if (!response) {
+      return {
+        errCode: 1,
+        data: [],
+      };
+    } else {
+      return {
+        errCode: 0,
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.error("Fail get profile doctor by id: ", error.message);
+  }
+};
 module.exports = {
   getTopDoctorHome,
   handlAllDoctors,
@@ -401,4 +474,5 @@ module.exports = {
   handlbulkCreateSchedule,
   handlefindScheduleByDate,
   handlGetInfoAddressClinic,
+  handleGetProfileDoctorById,
 };

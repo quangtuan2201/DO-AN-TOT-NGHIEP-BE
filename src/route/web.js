@@ -11,6 +11,7 @@ import {
 } from "../controllers/homeController";
 import userController from "../controllers/userController";
 import doctorController from "../controllers/doctorController";
+import patientController from "../controllers/patientController";
 
 // console.log(getAboutpage);
 
@@ -63,6 +64,21 @@ let initWebRoutes = (app) => {
   router.get(
     "/api/get-info-address-clinic",
     doctorController.getInfoAddressClinic
+  );
+  //[GET] /api/get-profile-doctor-By-id
+  router.get(
+    "/api/get-profile-doctor-by-id",
+    doctorController.getProfileDoctorById
+  );
+  //[POST] /spi/patient-book-appintment]
+  router.post(
+    "/api/patient-book-appointment",
+    patientController.saveBookAppointment
+  );
+  //[post]: /api/verify-book-appointment
+  router.get(
+    "/api/verify-book-appointment",
+    patientController.saveVerifiyBookAppointment
   );
 
   return app.use("/", router);

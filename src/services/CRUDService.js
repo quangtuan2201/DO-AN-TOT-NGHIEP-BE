@@ -64,7 +64,7 @@ const findOneById = async (userId) => {
 };
 //UpdataUserdata
 const updateUserData = async (data) => {
-  console.log("id update", data.id);
+  // console.log("id update", data.id);
   try {
     let user = await db.User.findOne({
       where: { id: data.id },
@@ -87,7 +87,7 @@ const updateUserData = async (data) => {
 };
 const deleteOneUser = async (id) => {
   try {
-    let action =  db.User.destroy({
+    let action = db.User.destroy({
       where: { id },
       raw: true,
     });

@@ -35,7 +35,7 @@ let getCreate = (req, res) => {
 
 //[/post-crud]
 let postCRUD = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   let message = await createNewUser(req.body);
   console.log("message :", message);
   return res.send("post CRUD");
@@ -64,7 +64,7 @@ let getEditCRUD = async (req, res) => {
 //put-crud
 let putCRUD = async (req, res) => {
   let data = req.body;
-  console.log("user edit:", data);
+  // console.log("user edit:", data);
   let updateUser = await updateUserData(data);
   res.redirect("/get-crud");
 };
