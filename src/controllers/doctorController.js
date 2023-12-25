@@ -21,7 +21,7 @@ const getTopDoctorHome = async (req, res) => {
 //[GET] /api/get-all-doctors
 const getAllDoctors = async (req, res) => {
   try {
-    let response = await doctorService.handlAllDoctors();
+    let response = await doctorService.handlGetAllDoctors();
     if (response && response.errCode === 0) {
       res.status(200).json(response);
     } else {

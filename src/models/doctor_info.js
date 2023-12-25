@@ -36,6 +36,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       count: DataTypes.INTEGER,
       doctorId: DataTypes.INTEGER,
+      specialtyId: DataTypes.INTEGER,
+      clinicId: DataTypes.INTEGER,
       priceId: DataTypes.STRING,
       provinceId: DataTypes.STRING,
       paymentId: DataTypes.STRING,
@@ -52,3 +54,4 @@ module.exports = (sequelize, DataTypes) => {
   );
   return Doctor_Info;
 };
+

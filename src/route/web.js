@@ -12,6 +12,7 @@ import {
 import userController from "../controllers/userController";
 import doctorController from "../controllers/doctorController";
 import patientController from "../controllers/patientController";
+import specialtyController from "../controllers/specialtyController";
 
 // console.log(getAboutpage);
 
@@ -76,10 +77,17 @@ let initWebRoutes = (app) => {
     patientController.saveBookAppointment
   );
   //[post]: /api/verify-book-appointment
-  router.get(
+  router.post(
     "/api/verify-book-appointment",
     patientController.saveVerifiyBookAppointment
   );
+  //[post]: /api/create-new-specialty
+  router.post(
+    "/api/create-new-specialty",
+    specialtyController.createNewSpecialty
+  );
+  //[GET] //api/get-all-specialty
+  router.get("/api/get-all-specialty", specialtyController.getAllSpecialty);
 
   return app.use("/", router);
 };

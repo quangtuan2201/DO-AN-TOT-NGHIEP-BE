@@ -13,13 +13,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Specialty.init(
     {
-      description: DataTypes.TEXT,
       image: DataTypes.STRING,
       name: DataTypes.STRING,
+      descriptionHTML: DataTypes.TEXT,
+      descriptionMarkdown: DataTypes.TEXT,
     },
     {
       sequelize,
-      modelName: "specialty",
+      modelName: "Specialty",
     }
   );
   return Specialty;

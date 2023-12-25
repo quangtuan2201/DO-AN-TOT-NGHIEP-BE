@@ -38,14 +38,12 @@ const getTopDoctorHome = async (limit, roleId = "R2") => {
       data: users.reverse(),
     };
   } catch (error) {
-    return {
-      errCode: 1,
-      error: error.message,
-    };
+    console.error(`Get top doctor fail, ${error.message}`);
+    throw error;
   }
 };
 // handle get All doctors
-const handlAllDoctors = async () => {
+const handlGetAllDoctors = async () => {
   try {
     const response = await db.User.findAll({
       order: [["createdAt", "DESC"]],
@@ -58,11 +56,17 @@ const handlAllDoctors = async () => {
       include: [
         {
           model: db.Markdown,
-          attributes: ["description", "contentHTML", "contentMarkdown"],
+          attributes: [
+            "doctorId",
+            "description",
+            "contentHTML",
+            "contentMarkdown",
+          ],
         },
         {
           model: db.Doctor_Info,
           attributes: [
+            "doctorId",
             "count",
             "priceId",
             "provinceId",
@@ -95,13 +99,15 @@ const handlAllDoctors = async () => {
     }
     // if(response && response)
   } catch (error) {
-    console.log(
+    console.error(
       `Fail call API get ALL doctor in doctorService ${error.message}`
     );
+    throw error;
   }
 };
 // Handle save info doctor
 const handleSaveInfoDoctor = async (infoDoctor) => {
+  // console.log("SaveInfoDoctor: ", infoDoctor);
   try {
     if (
       !infoDoctor.doctorId ||
@@ -114,7 +120,7 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
       };
     } else {
       if (infoDoctor.action === "CREATE") {
-        // console.log("CREATE !");
+        console.log("CREATE !");
         const create_markdown = db.Markdown.create(
           {
             doctorId: infoDoctor?.doctorId,
@@ -136,12 +142,13 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
             addressClinic: infoDoctor?.addressClinic,
             nameClinic: infoDoctor?.nameClinic,
             note: infoDoctor?.note,
+            clinicId: infoDoctor?.clinicId,
+            specialtyId: specialtyId,
           },
           {
             raw: true,
           }
         );
-
         const [res_markdown, res_InfoDoctor] = await Promise.all([
           create_markdown,
           create_InfoDoctor,
@@ -155,6 +162,7 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           data: { ...res_markdown.dataValues, ...res_InfoDoctor.dataValues },
         };
       } else if (infoDoctor.action === "EDIT") {
+        console.log("EDIT !");
         let doctorMarkdown = await db.Markdown.findOne({
           where: { doctorId: +infoDoctor?.doctorId },
           // raw: true,
@@ -181,6 +189,8 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           doctorInfo.addressClinic = infoDoctor?.addressClinic;
           doctorInfo.nameClinic = infoDoctor?.nameClinic;
           doctorInfo.count = infoDoctor?.count;
+          doctorInfo.specialtyId = infoDoctor?.specialtyId;
+          doctorInfo.clinicId = infoDoctor?.clinicId;
           await doctorInfo.save();
         }
         return {
@@ -189,12 +199,10 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
         };
       }
     }
+    return infoDoctor;
   } catch (error) {
-    console.log("Fail Create info doctor or update: ", error.message);
-    return {
-      errCode: -1,
-      message: `Fail create info doctor or update ${error.message}`,
-    };
+    console.error("Fail Create info doctor or update: ", error.message);
+    throw error;
   }
 };
 //handle get detail doctor by id
@@ -220,7 +228,7 @@ const handleGetDetailDoctorById = async (doctorId) => {
       nest: true,
     });
     if (response.image) {
-      response.image = new Buffer(response.image, "base64").toString("binary");
+      response.image = Buffer.from(response.image, "base64").toString("binary");
     }
     return {
       data: response,
@@ -228,6 +236,7 @@ const handleGetDetailDoctorById = async (doctorId) => {
     };
   } catch (error) {
     console.error("Error get detail doctor :", error.message);
+    throw error;
   }
 };
 //handle get allcode schedule houra
@@ -245,6 +254,7 @@ const handleAllcodeScheduleHours = async () => {
     }
   } catch (error) {
     console.error(`Error get alldata schedule hours ${error.message}`);
+    throw error;
   }
 };
 //handl bulk create Schedule
@@ -296,10 +306,8 @@ const handlbulkCreateSchedule = async (data) => {
       };
     }
   } catch (error) {
-    return {
-      errCode: -1,
-      message: `${error}`,
-    };
+    console.error("Error create bulk schedule");
+    throw error;
   }
 };
 //Tìm kiếm lịch khám
@@ -448,7 +456,9 @@ const handleGetProfileDoctorById = async (doctorId) => {
       nest: true,
     });
     if (response && response.image) {
-      response.image = new Buffer(response.image).toString("binary");
+      response.image = Buffer.from(specialty.image, "base64").toString(
+        "binary"
+      );
     }
     if (!response) {
       return {
@@ -463,11 +473,12 @@ const handleGetProfileDoctorById = async (doctorId) => {
     }
   } catch (error) {
     console.error("Fail get profile doctor by id: ", error.message);
+    throw error();
   }
 };
 module.exports = {
   getTopDoctorHome,
-  handlAllDoctors,
+  handlGetAllDoctors,
   handleSaveInfoDoctor,
   handleGetDetailDoctorById,
   handleAllcodeScheduleHours,

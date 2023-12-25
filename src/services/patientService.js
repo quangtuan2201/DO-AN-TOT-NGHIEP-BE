@@ -13,9 +13,9 @@ const builURLEmail = (doctorId, token) => {
 const handlSaveBookAppoientment = async (patientInfo) => {
   try {
     // console.log("patient InFo ", patientInfo);
-    console.log("---------------------------");
-    console.log("----------->  Info pateint service : ", patientInfo);
-    console.log("---------------------------");
+    // console.log("---------------------------");
+    // console.log("----------->  Info pateint service : ", patientInfo);
+    // console.log("---------------------------");
     if (
       !patientInfo.email ||
       !patientInfo.doctorId ||
@@ -49,8 +49,8 @@ const handlSaveBookAppoientment = async (patientInfo) => {
         },
         // raw: true,
       });
-      console.log("==>>> IS USer: ", isUser);
-      console.log("===>>> User booking : ", isUser[0].id);
+      // console.log("==>>> IS USer: ", isUser);
+      // console.log("===>>> User booking : ", isUser[0].id);
 
       if (isUser && isUser[0]) {
         console.log("Check --> true");
@@ -80,6 +80,7 @@ const handlSaveBookAppoientment = async (patientInfo) => {
     }
   } catch (error) {
     console.error("Save info book appointment fail !", error.message);
+    throw error;
   }
 };
 
@@ -114,11 +115,12 @@ const handlSaveVerifyAppointment = async (data) => {
     } else {
       return {
         errCode: 2,
-        messaage: "Appointment schedule has been activated or does not exist",
+        message: "Appointment schedule has been activated or does not exist",
       };
     }
   } catch (error) {
-    console.error("Error verify book appientment !");
+    console.error("Error verify book appientment !" + error.message);
+    throw error;
   }
 };
 

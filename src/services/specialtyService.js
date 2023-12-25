@@ -1,0 +1,75 @@
+import { raw } from "body-parser";
+import db from "../models/index";
+require("dotenv").config();
+const handlCreateNewSpecialy = async (formData) => {
+  try {
+    // console.log("formData: ", formData);
+    const { name, imageBase64, descriptionHTML, descriptionMarkdown } =
+      formData;
+    if (!name || !imageBase64 || !descriptionHTML || !descriptionMarkdown) {
+      return {
+        errorCode: 1,
+        mesage: "Missing parameter !",
+      };
+    }
+    const response = await db.Specialty.create({
+      name,
+      descriptionHTML,
+      descriptionMarkdown,
+      image: imageBase64,
+    });
+    if (response) {
+      return {
+        errCode: 0,
+        data: response,
+      };
+    } else {
+      return {
+        errCode: 2,
+        mesage: "Create specialt fail.",
+      };
+    }
+  } catch (error) {
+    return new Error(`${error.mesage}`);
+    throw error;
+  }
+};
+// Lấy tất cả danh sách chuyên khoa
+const handlGetAllSpecialy = async () => {
+  try {
+    const response = await db.Specialty.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+      raw: true,
+    });
+    // console.log("Response: ", response);
+    // console.log("Typeof response: ", response.length > 0);
+    if (!response || response.length === 0) {
+      return {
+        errCode: 1,
+        message: "Get all specialty fail!",
+      };
+    }
+    response.forEach((specialty) => {
+      if (specialty.image) {
+        specialty.image = Buffer.from(specialty.image, "base64").toString(
+          "binary"
+        );
+      }
+    });
+    return {
+      errCode: 0,
+      message: "Get all specilty success!",
+      data: response,
+    };
+  } catch (error) {
+    console.error(`Error get all specialty , ${error.message}`);
+    throw error;
+  }
+};
+
+module.exports = {
+  handlCreateNewSpecialy,
+  handlGetAllSpecialy,
+};
