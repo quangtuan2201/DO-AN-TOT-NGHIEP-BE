@@ -68,8 +68,47 @@ const handlGetAllSpecialy = async () => {
     throw error;
   }
 };
+//Lay thong tin chi tiet chuyen khoa bang id
+const handlGetSpecialtyById = async (specialtyId, location) => {
+  try {
+    let data = await db.Specialty.findOne({
+      where: { id: specialtyId },
+      attributes: ["descriptionHTML", "descriptionMarkdown"],
+      raw: true,
+    });
+    if (data) {
+      let doctorSpecilty = [];
+      if (location === "ALL") {
+        doctorSpecilty = await db.Doctor_Info.findAll({
+          where: { specialtyId },
+          attributes: ["doctorId", "provinceId"],
+        });
+      } else {
+        //find by location
+        doctorSpecilty = await db.Doctor_Info.findAll({
+          where: { specialtyId, provinceId: location },
+          attributes: ["doctorId", "provinceId"],
+        });
+      }
+
+      data.doctorSpecilty = doctorSpecilty;
+      return {
+        errCode: 0,
+        data,
+      };
+    }
+  } catch (error) {
+    console.error("", error.message);
+    return {
+      errCode: 500,
+      message: "Internal Server Error",
+      error: error.message,
+    };
+  }
+};
 
 module.exports = {
   handlCreateNewSpecialy,
   handlGetAllSpecialy,
+  handlGetSpecialtyById,
 };

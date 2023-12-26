@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "keyMap",
         as: "genderData",
       });
+      // User.belongsTo(models.Specialty, {
+      //   foreignKey: "specialtyId",
+      //   targetKey: "id",
+      //   as: "specialtyData",
+      // });
       User.hasOne(models.Markdown, {
         foreignKey: "doctorId",
       });

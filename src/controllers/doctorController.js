@@ -166,6 +166,7 @@ const getInfoAddressClinic = async (req, res) => {
 const getProfileDoctorById = async (req, res) => {
   try {
     const doctorId = req?.query?.doctorId;
+    console.log("doctorId: ", doctorId);
     const response = await doctorService.handleGetProfileDoctorById(doctorId);
     if (response) {
       res.status(200).json(response);

@@ -73,6 +73,8 @@ const handlGetAllDoctors = async () => {
             "paymentId",
             "addressClinic",
             "nameClinic",
+            "specialtyId",
+            "clinicId",
             "note",
           ],
         },
@@ -107,7 +109,7 @@ const handlGetAllDoctors = async () => {
 };
 // Handle save info doctor
 const handleSaveInfoDoctor = async (infoDoctor) => {
-  // console.log("SaveInfoDoctor: ", infoDoctor);
+  console.log("SaveInfoDoctor: ", infoDoctor);
   try {
     if (
       !infoDoctor.doctorId ||
@@ -143,7 +145,7 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
             nameClinic: infoDoctor?.nameClinic,
             note: infoDoctor?.note,
             clinicId: infoDoctor?.clinicId,
-            specialtyId: specialtyId,
+            specialtyId: infoDoctor?.specialtyId,
           },
           {
             raw: true,
@@ -171,8 +173,8 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           where: { doctorId: +infoDoctor?.doctorId },
         });
         // let [res_markdown , res_InfoDoctor] = await Promise.all([doctorMarkdown , doctorInfo ])
-        // console.log("---res_markdown: ", doctorMarkdown);
-        // console.log("----res_InfoDoctor: ", doctorInfo);
+        console.log("---res_markdown: ", doctorMarkdown);
+        console.log("----res_InfoDoctor: ", doctorInfo);
         if (doctorMarkdown) {
           doctorMarkdown.doctorId = infoDoctor?.doctorId;
           doctorMarkdown.clinicId = infoDoctor?.clinicId;
@@ -191,6 +193,7 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           doctorInfo.count = infoDoctor?.count;
           doctorInfo.specialtyId = infoDoctor?.specialtyId;
           doctorInfo.clinicId = infoDoctor?.clinicId;
+          doctorInfo.note = infoDoctor?.note;
           await doctorInfo.save();
         }
         return {
@@ -456,9 +459,7 @@ const handleGetProfileDoctorById = async (doctorId) => {
       nest: true,
     });
     if (response && response.image) {
-      response.image = Buffer.from(specialty.image, "base64").toString(
-        "binary"
-      );
+      response.image = Buffer.from(response.image, "base64").toString("binary");
     }
     if (!response) {
       return {

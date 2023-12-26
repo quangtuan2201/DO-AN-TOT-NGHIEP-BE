@@ -88,6 +88,8 @@ let initWebRoutes = (app) => {
   );
   //[GET] //api/get-all-specialty
   router.get("/api/get-all-specialty", specialtyController.getAllSpecialty);
+  //[GET] //api/get-all-specialty
+  router.get("/api/get-specialty-by-id", specialtyController.getSpecialtyById);
 
   return app.use("/", router);
 };
