@@ -4,7 +4,7 @@ import { hashPassword } from "../utils/passwordUtils";
 const checkEmail = async (userEmail) => {
   try {
     let result = await db.User.findOne({
-      attributes: ["email", "roleId", "firstName", "lastName"],
+      attributes: ["id", "email", "roleId", "firstName", "lastName"],
       where: { email: userEmail },
       raw: true,
     });

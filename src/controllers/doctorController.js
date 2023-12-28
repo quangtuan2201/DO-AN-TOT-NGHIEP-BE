@@ -180,6 +180,26 @@ const getProfileDoctorById = async (req, res) => {
     });
   }
 };
+//
+const sendRemedy = async (req, res) => {
+  try {
+    const dataForm = req.body;
+
+    const response = await doctorService.handlSendRemedy(dataForm);
+    console.log("trả về: ", response);
+    if (response) {
+      res.status(200).json(response);
+    } else {
+      res.status(404).json(response);
+    }
+  } catch (error) {
+    console.error(`Error form server , send remmedy fail ${error.message}`);
+    res.status(500).json({
+      errCode: -1,
+      message: `Error form server , send remmedy fail ${error.message}`,
+    });
+  }
+};
 module.exports = {
   getTopDoctorHome,
   getAllDoctors,
@@ -190,4 +210,5 @@ module.exports = {
   getScheduleDoctorByDate,
   getInfoAddressClinic,
   getProfileDoctorById,
+  sendRemedy,
 };

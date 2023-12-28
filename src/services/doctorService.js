@@ -5,6 +5,7 @@ import markdown from "../models/markdown";
 require("dotenv").config();
 import schedule from "../models/schedule";
 import _, { includes } from "lodash";
+import emailService from "./emailService";
 
 // const max_number_schedule = dotenv.config();
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
@@ -477,6 +478,44 @@ const handleGetProfileDoctorById = async (doctorId) => {
     throw error();
   }
 };
+// Send remedy
+const handlSendRemedy = async (data) => {
+  try {
+    // console.log("form dat:a, ", data);
+    const { email, doctorId, patientId, timeType } = data;
+    if (!email || !doctorId || !patientId || !timeType) {
+      return {
+        errCode: 1,
+        message: "Missing parameter.",
+      };
+    } else {
+      let appointment = await db.Booking.findOne({
+        where: { doctorId, patientId, timeType, statusId: "S2" },
+        raw: false,
+      });
+      if (appointment) {
+        appointment.statusId = "S3";
+        await appointment.save();
+      }
+      await emailService.sendAttachment(data);
+      return {
+        errCode: 0,
+        message: "Confirm success",
+        data: appointment,
+      };
+
+      // else {
+      //   return {
+      //     errCode: 2,
+      //     message: "Confirm fail.",
+      //   };
+      // }
+    }
+  } catch (error) {
+    console.log(`Error:${error.message} `);
+    throw error;
+  }
+};
 module.exports = {
   getTopDoctorHome,
   handlGetAllDoctors,
@@ -487,4 +526,5 @@ module.exports = {
   handlefindScheduleByDate,
   handlGetInfoAddressClinic,
   handleGetProfileDoctorById,
+  handlSendRemedy,
 };

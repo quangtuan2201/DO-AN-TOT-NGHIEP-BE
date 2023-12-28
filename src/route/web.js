@@ -13,6 +13,7 @@ import userController from "../controllers/userController";
 import doctorController from "../controllers/doctorController";
 import patientController from "../controllers/patientController";
 import specialtyController from "../controllers/specialtyController";
+import clinicController from "../controllers/clinicController";
 
 // console.log(getAboutpage);
 
@@ -71,6 +72,8 @@ let initWebRoutes = (app) => {
     "/api/get-profile-doctor-by-id",
     doctorController.getProfileDoctorById
   );
+  //[GET] : /api/send-remedy
+  router.post("/api/send-remeder", doctorController.sendRemedy);
   //[POST] /spi/patient-book-appintment]
   router.post(
     "/api/patient-book-appointment",
@@ -90,6 +93,17 @@ let initWebRoutes = (app) => {
   router.get("/api/get-all-specialty", specialtyController.getAllSpecialty);
   //[GET] //api/get-all-specialty
   router.get("/api/get-specialty-by-id", specialtyController.getSpecialtyById);
+  //[POST] /api/save-info-clinic
+  router.post("/api/save-info-clinic", clinicController.saveInfoClinic);
+  //[GET] //api/get-all-clinic
+  router.get("/api/get-all-clinic", clinicController.getAllClinic);
+  //[GET] //api/get-clinic-by-id
+  router.get("/api/get-info-clinic-by-id", clinicController.getInfoClinicById);
+  //[GET] //api/get-list-patient-for-doctor
+  router.get(
+    "/api/get-list-patient-for-doctor",
+    patientController.getListPatientForDoctor
+  );
 
   return app.use("/", router);
 };

@@ -35,7 +35,39 @@ const saveVerifiyBookAppointment = async (req, res) => {
     });
   }
 };
+//[GET] /api/get-list-patient-for-doctor
+const getListPatientForDoctor = async (req, res) => {
+  try {
+    const doctorId = req.query?.doctorId;
+    const date = req.query?.date;
+    console.log("doctorId: ", doctorId);
+    console.log("date: ", date);
+
+    if (!doctorId || !date) {
+      res.status(404).json({
+        errCode: 1,
+        message: "Missing doctorid or date parameter.",
+      });
+    }
+    const response = await patientService.handlGetListPatientForDoctor(
+      doctorId,
+      date
+    );
+    if (response) {
+      res.status(200).json(response);
+    } else {
+      res.status(404).json(response);
+    }
+  } catch (error) {
+    console.log(`Error ${error.message} `);
+    res.status(500).json({
+      errCode: -1,
+      message: `Error form server , get list patient for doctor fail. ${error.me}`,
+    });
+  }
+};
 module.exports = {
   saveBookAppointment,
   saveVerifiyBookAppointment,
+  getListPatientForDoctor,
 };

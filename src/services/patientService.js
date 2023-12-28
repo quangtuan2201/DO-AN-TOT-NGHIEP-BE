@@ -12,16 +12,19 @@ const builURLEmail = (doctorId, token) => {
 };
 const handlSaveBookAppoientment = async (patientInfo) => {
   try {
-    // console.log("patient InFo ", patientInfo);
-    // console.log("---------------------------");
+    console.log("patient InFo ", patientInfo);
+    console.log("---------------------------");
     // console.log("----------->  Info pateint service : ", patientInfo);
-    // console.log("---------------------------");
+    // console.log("Ngay hôm nay : ", patientInfo.date);
+    console.log("---------------------------");
     if (
       !patientInfo.email ||
       !patientInfo.doctorId ||
       !patientInfo.timeType ||
       !patientInfo.date ||
-      !patientInfo.fullName
+      !patientInfo.fullName ||
+      !patientInfo.gender ||
+      !patientInfo.address
     ) {
       return {
         errCode: 1,
@@ -37,6 +40,7 @@ const handlSaveBookAppoientment = async (patientInfo) => {
         language: patientInfo.language,
         redirectLink: builURLEmail(+patientInfo.doctorId, token),
       });
+      //upsert patient
       const isUser = await db.User.findOrCreate({
         where: {
           email: patientInfo.email,
@@ -46,12 +50,17 @@ const handlSaveBookAppoientment = async (patientInfo) => {
         defaults: {
           email: patientInfo.email,
           roleId: "R3",
+          gender: patientInfo.gender,
+          phoneNumber: patientInfo.phoneNumber,
+          firstName: patientInfo.fullName,
+          address: patientInfo.address,
         },
         // raw: true,
       });
       // console.log("==>>> IS USer: ", isUser);
       // console.log("===>>> User booking : ", isUser[0].id);
 
+      //create a booking record
       if (isUser && isUser[0]) {
         console.log("Check --> true");
         const response = await db.Booking.findOrCreate({
@@ -123,11 +132,62 @@ const handlSaveVerifyAppointment = async (data) => {
     throw error;
   }
 };
+//lay thong tin benh nhan theo id va date
+const handlGetListPatientForDoctor = async (doctorId, date) => {
+  try {
+    console.log("doctorId service: ", doctorId);
+    console.log("date service: ", date);
+    const response = await db.Booking.findAll({
+      where: {
+        statusId: "S2",
+        doctorId,
+        date,
+      },
+      include: [
+        {
+          model: db.User,
+          as: "patientData",
+          attributes: ["firstName", "email", "address", "phoneNumber"],
+          include: [
+            {
+              model: db.Allcode,
+              as: "genderData",
+              attributes: ["valueVn", "valueEn"],
+            },
+          ],
+        },
+        {
+          model: db.Allcode,
+          as: "patientTimeType",
+          attributes: ["valueVn", "valueEn"],
+        },
+      ],
+      // raw: true,
+      nest: true,
+    });
+    console.log("response: ", response);
+    if (response && response.length > 0) {
+      return {
+        errCode: 0,
+        data: response,
+      };
+    } else {
+      return {
+        errCode: 2,
+        data: [],
+      };
+    }
+  } catch (error) {
+    console.log(`Error get list patient doctor, ${error.message}`);
+    throw error;
+  }
+};
 
 module.exports = {
   handlSaveBookAppoientment,
   builURLEmail,
   handlSaveVerifyAppointment,
+  handlGetListPatientForDoctor,
 };
 //  statusId: patientInfo.statusId,
 //  doctorId: patientInfo.doctorId,

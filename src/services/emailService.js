@@ -62,9 +62,69 @@ const getBodyHTMLEmail = (dataSend) => {
   return result;
 };
 
+const sendAttachment = async (dataSend) => {
+  try {
+    console.log("sendAttachment: ", dataSend);
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_APP,
+        pass: process.env.EMAIL_APP_PASSWORD,
+      },
+    });
+    // console.log("user: ", process.env.EMAIL_APP_PASSWORD);
+    // console.log("pass: ", process.env.EMAIL_APP);
+
+    // async..await is not allowed in global scope, must use a wrapper
+    // send mail with defined transport object
+    //   console.log("transporter: ", transporter);
+    const info = await transporter.sendMail({
+      from: `nnguyentuananh2201@gmail.com`, // sender address
+      to: dataSend.email,
+      subject: "Kết quả đặt lịch khám bệnh ✔", // Subject line
+      text: "Hello world?", // plain text body
+      html: getBodyHTMLEmailRemedy(dataSend),
+      attachments: [
+        {
+          filename: "patient.jpg",
+          content: dataSend.imageBase64.split("base64,")[1],
+          encoding: "base64",
+        },
+      ],
+    });
+    console.log("Info: ", info);
+    return info;
+  } catch (error) {
+    console.log("Error send confirm." + error.message);
+    throw error;
+  }
+};
+const getBodyHTMLEmailRemedy = (dataSend) => {
+  let result = "";
+  if (dataSend.language === "vi") {
+    result = ` <h3>Xin chào ${dataSend.firstName}! </h3>
+    <p>Bạn nhận được vì trước đó bạn đã đặt lịch khám bệnh online trên BookingCare thành công. </p>
+    <p><strong>Thông tin đặt lịch khám bệnh:</strong> </p>
+    <p>Thông tin đơn thuốc / hóa đơn được gửi trong file đính kèm </p>
+    <div><i>Xin chân thành cảm ơn!</i></div>
+  `;
+  } else {
+    result = `<h3>Dear ${dataSend.firstName}! </h3>
+    <p>You receive it because you have previously successfully booked an online medical appointment on BookingCare. </p>
+    <p><strong>Information for scheduling medical examination:</strong> </p>
+    <p>Prescription / invoice information is sent in the attached file </p>
+    <div><i>Thank you very much!</i></div>`;
+  }
+  return result;
+};
+
 module.exports = {
   sendSimpleEmail,
   getBodyHTMLEmail,
+  sendAttachment,
+  getBodyHTMLEmailRemedy,
 };
 
 // main().catch(console.error);
