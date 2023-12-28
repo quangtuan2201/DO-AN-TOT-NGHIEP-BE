@@ -1,5 +1,7 @@
 import { raw } from "body-parser";
 import db from "../models/index";
+import { result } from "lodash";
+const { Op } = require("sequelize");
 require("dotenv").config();
 const handlCreateNewSpecialy = async (formData) => {
   try {
@@ -106,9 +108,79 @@ const handlGetSpecialtyById = async (specialtyId, location) => {
     };
   }
 };
+//Lay thong tin chi tiet chuyen khoa bang id
+const handlGetSearchResult = async (keyword) => {
+  try {
+    let results = [];
+    const resultSpecialty = await db.Specialty.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${keyword}%`, // Tìm kiếm không phân biệt chữ hoa chữ thường
+        },
+      },
+      // exclude: ["image", "createdAt", "updatedAt"],
+      attributes: ["id", "name"],
+      raw: true,
+    });
+    const resultClinic = await db.Clinic.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${keyword}%`, // Tìm kiếm không phân biệt chữ hoa chữ thường
+        },
+      },
+      // exclude: ["image", "createdAt", "updatedAt"],
+      attributes: ["id", "name"],
+      raw: true,
+    });
+    if (Array.isArray(resultClinic) && resultClinic.length > 0) {
+      let clinic = resultClinic.map((item) => {
+        return {
+          ...item,
+        };
+      });
+      results.push({
+        type: "clinic",
+        result: clinic,
+      });
+    }
+    if (Array.isArray(resultSpecialty) && resultSpecialty.length > 0) {
+      let specialty = resultSpecialty.map((item) => {
+        return {
+          ...item,
+        };
+      });
+      results.push({
+        type: "specialty",
+        result: specialty,
+      });
+    }
+    // const results = [...resultClinic, ...resultSpecialty];
+    console.log("result: ", results);
+    if (Array.isArray(results) && results.length > 0) {
+      return {
+        errCode: 0,
+        message: "Specialty search success.",
+        data: results,
+      };
+    } else {
+      return {
+        errCode: 1,
+        message: "Specialty search fail.",
+      };
+    }
+  } catch (error) {
+    console.error("", error.message);
+    return {
+      errCode: 500,
+      message: "Internal Server Error",
+      error: error.message,
+    };
+  }
+};
 
 module.exports = {
   handlCreateNewSpecialy,
   handlGetAllSpecialy,
   handlGetSpecialtyById,
+  handlGetSearchResult,
 };

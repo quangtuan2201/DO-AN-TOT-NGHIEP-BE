@@ -93,6 +93,8 @@ let initWebRoutes = (app) => {
   router.get("/api/get-all-specialty", specialtyController.getAllSpecialty);
   //[GET] //api/get-all-specialty
   router.get("/api/get-specialty-by-id", specialtyController.getSpecialtyById);
+  //[GET] /api/specialty-search
+  router.get("/api/search", specialtyController.getSearchResult); //specialized search results
   //[POST] /api/save-info-clinic
   router.post("/api/save-info-clinic", clinicController.saveInfoClinic);
   //[GET] //api/get-all-clinic
