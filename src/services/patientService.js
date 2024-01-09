@@ -12,11 +12,6 @@ const builURLEmail = (doctorId, token) => {
 };
 const handlSaveBookAppoientment = async (patientInfo) => {
   try {
-    console.log("patient InFo ", patientInfo);
-    console.log("---------------------------");
-    // console.log("----------->  Info pateint service : ", patientInfo);
-    // console.log("Ngay hôm nay : ", patientInfo.date);
-    console.log("---------------------------");
     if (
       !patientInfo.email ||
       !patientInfo.doctorId ||
@@ -57,9 +52,6 @@ const handlSaveBookAppoientment = async (patientInfo) => {
         },
         // raw: true,
       });
-      // console.log("==>>> IS USer: ", isUser);
-      // console.log("===>>> User booking : ", isUser[0].id);
-
       //create a booking record
       if (isUser && isUser[0]) {
         console.log("Check --> true");
@@ -97,7 +89,6 @@ const handlSaveBookAppoientment = async (patientInfo) => {
 const handlSaveVerifyAppointment = async (data) => {
   try {
     const { token, doctorId } = data;
-    console.log("data: ", data);
     if (!token || !doctorId) {
       return {
         errCode: 1,
@@ -135,8 +126,6 @@ const handlSaveVerifyAppointment = async (data) => {
 //lay thong tin benh nhan theo id va date
 const handlGetListPatientForDoctor = async (doctorId, date) => {
   try {
-    console.log("doctorId service: ", doctorId);
-    console.log("date service: ", date);
     const response = await db.Booking.findAll({
       where: {
         statusId: "S2",
@@ -165,7 +154,6 @@ const handlGetListPatientForDoctor = async (doctorId, date) => {
       // raw: true,
       nest: true,
     });
-    console.log("response: ", response);
     if (response && response.length > 0) {
       return {
         errCode: 0,

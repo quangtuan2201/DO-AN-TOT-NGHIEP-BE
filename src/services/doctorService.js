@@ -89,7 +89,6 @@ const handlGetAllDoctors = async () => {
       nest: true,
     });
     if (response && response.length > 0) {
-      // console.log("response: ", response);
       return {
         errCode: 0,
         data: response,
@@ -110,7 +109,6 @@ const handlGetAllDoctors = async () => {
 };
 // Handle save info doctor
 const handleSaveInfoDoctor = async (infoDoctor) => {
-  console.log("SaveInfoDoctor: ", infoDoctor);
   try {
     if (
       !infoDoctor.doctorId ||
@@ -156,16 +154,11 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
           create_markdown,
           create_InfoDoctor,
         ]);
-        // console.log("====>> Res_markdown: ", res_markdown.dataValues);
-        // console.log("----------------------");
-        // console.log("====>> Res_InfoDoctor: ", res_InfoDoctor.dataValues);
-        // console.log("---------------------");
         return {
           errCode: 0,
           data: { ...res_markdown.dataValues, ...res_InfoDoctor.dataValues },
         };
       } else if (infoDoctor.action === "EDIT") {
-        console.log("EDIT !");
         let doctorMarkdown = await db.Markdown.findOne({
           where: { doctorId: +infoDoctor?.doctorId },
           // raw: true,
@@ -173,9 +166,6 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
         let doctorInfo = await db.Doctor_Info.findOne({
           where: { doctorId: +infoDoctor?.doctorId },
         });
-        // let [res_markdown , res_InfoDoctor] = await Promise.all([doctorMarkdown , doctorInfo ])
-        console.log("---res_markdown: ", doctorMarkdown);
-        console.log("----res_InfoDoctor: ", doctorInfo);
         if (doctorMarkdown) {
           doctorMarkdown.doctorId = infoDoctor?.doctorId;
           doctorMarkdown.clinicId = infoDoctor?.clinicId;
@@ -279,23 +269,16 @@ const handlbulkCreateSchedule = async (data) => {
     }
     //tìm kiếm tất cả bản ghi schedule dk doctorId và date
     let existing = await db.Schedule.findAll({
-      where: { doctorId: +doctorCode, date: bookingDate },
+      where: { doctorId: doctorCode, date: bookingDate },
       attributes: ["timeType", "date", "doctorId", "maxNumber"],
       raw: true,
     });
-    // console.log("---existing:", existing);
-    //convert type date từ datetime sang
-    // if (existing && existing.length > 0) {
-    //   existing = existing.map((item) => {
-    //     item.date = new Date(item.date).getTime();
-    //     return item;
-    //   });
-    // }
+
     //so sanh dư liệu gửi từ client với dữ liệu tìm trên db check xem có bị trùng
     let toCreate = _.differenceWith(bookingInfoList, existing, (a, b) => {
       return a.timeType === b.timeType && +a.date === +b.date;
     });
-    // console.log("---toCreate: ", toCreate);
+    console.log("---toCreate: ", toCreate);
     if (toCreate && toCreate.length > 0) {
       const response = await db.Schedule.bulkCreate(toCreate);
       return {
@@ -306,7 +289,7 @@ const handlbulkCreateSchedule = async (data) => {
     } else {
       return {
         errCode: 1,
-        message: "FAIL! create schedule !",
+        message: "Fail! create schedule !",
       };
     }
   } catch (error) {
@@ -394,7 +377,6 @@ const handlGetInfoAddressClinic = async (doctorId) => {
       nest: true,
     });
     if (response) {
-      // console.log("response : ", response);
       return {
         errCode: 0,
         data: response,
@@ -479,43 +461,93 @@ const handleGetProfileDoctorById = async (doctorId) => {
   }
 };
 // Send remedy
+// const handlSendRemedy = async (data) => {
+//   try {
+//     console.log("form dat:a, ", data);
+//     const { email, doctorId, patientId, timeType, status } = data;
+//     if (!email || !doctorId || !patientId || !timeType || !status) {
+//       return {
+//         errCode: 1,
+//         message: "Missing parameter.",
+//       };
+//     } else {
+//       let appointment = await db.Booking.findOne({
+//         where: { doctorId, patientId, timeType, statusId: "S2" },
+//         raw: false,
+//       });
+//       if (appointment) {
+//         if (status === "CONFIRM") {
+//           appointment.statusId = "S3";
+//           await appointment.save();
+//           await emailService.sendAttachment(data);
+//         } else if (status === "CANCEL") {
+//           appointment.statusId = "S4";
+//           await appointment.save();
+//           await emailService.sendEmailCancel(data);
+//         }
+//       }
+//       return {
+//         errCode: 0,
+//         message: "Confirm success",
+//         data: appointment,
+//       };
+
+//       // else {
+//       //   return {
+//       //     errCode: 2,
+//       //     message: "Confirm fail.",
+//       //   };
+//       // }
+//     }
+//   } catch (error) {
+//     console.log(`Error:${error.message} `);
+//     throw error;
+//   }
+// };
 const handlSendRemedy = async (data) => {
   try {
-    // console.log("form dat:a, ", data);
-    const { email, doctorId, patientId, timeType } = data;
-    if (!email || !doctorId || !patientId || !timeType) {
+    const { email, doctorId, patientId, timeType, status } = data;
+    if (!email || !doctorId || !patientId || !timeType || !status) {
       return {
         errCode: 1,
         message: "Missing parameter.",
       };
-    } else {
-      let appointment = await db.Booking.findOne({
-        where: { doctorId, patientId, timeType, statusId: "S2" },
-        raw: false,
-      });
-      if (appointment) {
-        appointment.statusId = "S3";
-        await appointment.save();
-      }
-      await emailService.sendAttachment(data);
-      return {
-        errCode: 0,
-        message: "Confirm success",
-        data: appointment,
-      };
-
-      // else {
-      //   return {
-      //     errCode: 2,
-      //     message: "Confirm fail.",
-      //   };
-      // }
     }
+
+    const statusActions = {
+      CONFIRM: {
+        newStatus: "S3",
+        emailFunction: emailService.sendAttachment,
+      },
+      CANCEL: {
+        newStatus: "S4",
+        emailFunction: emailService.sendEmailCancel,
+      },
+    };
+
+    const appointment = await db.Booking.findOne({
+      where: { doctorId, patientId, timeType, statusId: "S2" },
+      raw: false,
+    });
+
+    if (appointment && statusActions[status]) {
+      const action = statusActions[status];
+      appointment.statusId = action.newStatus;
+      await appointment.save();
+      await action.emailFunction(data);
+    }
+
+    return {
+      errCode: 0,
+      message: "Confirm success",
+      data: appointment,
+    };
   } catch (error) {
-    console.log(`Error:${error.message} `);
+    console.log(`Error: ${error.message}`);
     throw error;
   }
 };
+
 module.exports = {
   getTopDoctorHome,
   handlGetAllDoctors,

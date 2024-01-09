@@ -14,8 +14,8 @@ const sendSimpleEmail = async (dataSend) => {
       pass: process.env.EMAIL_APP_PASSWORD,
     },
   });
-  console.log("user: ", process.env.EMAIL_APP_PASSWORD);
-  console.log("pass: ", process.env.EMAIL_APP);
+  // console.log("user: ", process.env.EMAIL_APP_PASSWORD);
+  // console.log("pass: ", process.env.EMAIL_APP);
 
   // async..await is not allowed in global scope, must use a wrapper
   // send mail with defined transport object
@@ -64,7 +64,7 @@ const getBodyHTMLEmail = (dataSend) => {
 
 const sendAttachment = async (dataSend) => {
   try {
-    console.log("sendAttachment: ", dataSend);
+    // console.log("sendAttachment: ", dataSend);
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
@@ -94,7 +94,6 @@ const sendAttachment = async (dataSend) => {
         },
       ],
     });
-    console.log("Info: ", info);
     return info;
   } catch (error) {
     console.log("Error send confirm." + error.message);
@@ -119,12 +118,51 @@ const getBodyHTMLEmailRemedy = (dataSend) => {
   }
   return result;
 };
+const sendEmailCancel = async (dataSend) => {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_APP,
+      pass: process.env.EMAIL_APP_PASSWORD,
+    },
+  });
+
+  // async..await is not allowed in global scope, must use a wrapper
+  // send mail with defined transport object
+  //   console.log("transporter: ", transporter);
+  const info = await transporter.sendMail({
+    from: `BookingCare`, // sender address
+    to: dataSend.email,
+    subject: "Thông tin đặt lịch khám bệnh ✔", // Subject line
+    text: "Hello world?", // plain text body
+    html: getBodyHTMLEmailCancel(dataSend),
+  });
+  return info;
+};
+const getBodyHTMLEmailCancel = (dataSend) => {
+  let result = "";
+  if (dataSend.language === "vi") {
+    result = ` <h3>Xin chào ${dataSend.firstName}! </h3>
+    <p>Bạn nhận được vì trước đó bạn đã đặt lịch khám bệnh online trên BookingCare đã bị hủy. </p>
+    <p><strong>Lý do bị hủy:</strong>${dataSend.reason} </p>
+    <div><i>Bạn có thể liện hệ số điện thoại hostline để được hỗ trợ hoặc có thể đến trực tiếp cơ sở để nhận được tư vấn ! Xin chân thành cảm ơn!</i></div>
+  `;
+  } else {
+    result = `<h3>Dear ${dataSend.firstName}! </h3>
+    <p>You receive this because you previously booked an online medical appointment on BookingCare that was canceled. </p>
+    <p><strong>Reason for cancellation:</strong>${dataSend.reason} </p>
+    <div><i>You can contact the hostline phone number for support or you can come directly to the facility to receive advice! Thank you very much!</i></div>`;
+  }
+  return result;
+};
 
 module.exports = {
   sendSimpleEmail,
   getBodyHTMLEmail,
   sendAttachment,
   getBodyHTMLEmailRemedy,
+  sendEmailCancel,
+  getBodyHTMLEmailCancel,
 };
-
-// main().catch(console.error);

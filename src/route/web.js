@@ -15,8 +15,6 @@ import patientController from "../controllers/patientController";
 import specialtyController from "../controllers/specialtyController";
 import clinicController from "../controllers/clinicController";
 
-// console.log(getAboutpage);
-
 let router = express.Router();
 let initWebRoutes = (app) => {
   router.get("/", getHomepage);
@@ -41,8 +39,12 @@ let initWebRoutes = (app) => {
   router.patch("/api/users", userController.handlUpdateUsers);
   //[DELETE] /api/delte-user
   router.delete("/api/users", userController.handleDeleteUser);
+  //[GET] /api/specialty-search
+  router.get("/api/search", userController.getSearchResult);
   //[GET] /allcode
   router.get("/api/allcode", userController.handlGetAllCode);
+  //[GET]: get-statistics-by-date
+  router.get("/api/get-statistics-by-date", userController.getStatisticsByDate);
   //[GET] //api/top-doctor-home
   router.get("/api/top-doctor-home", doctorController.getTopDoctorHome);
   //[GET] //api/get-all-doctors
@@ -93,8 +95,9 @@ let initWebRoutes = (app) => {
   router.get("/api/get-all-specialty", specialtyController.getAllSpecialty);
   //[GET] //api/get-all-specialty
   router.get("/api/get-specialty-by-id", specialtyController.getSpecialtyById);
-  //[GET] /api/specialty-search
-  router.get("/api/search", specialtyController.getSearchResult); //specialized search results
+  ///////////////////////////////////////////
+  //specialized search results
+  ///////////////////////////////////////////
   //[POST] /api/save-info-clinic
   router.post("/api/save-info-clinic", clinicController.saveInfoClinic);
   //[GET] //api/get-all-clinic

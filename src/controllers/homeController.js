@@ -14,7 +14,6 @@ import { hashPassword } from "../utils/passwordUtils";
 let getHomepage = async (req, res) => {
   try {
     let data = await db.User.findAll();
-    //  console.log('data',JSON.stringify(data));
     return res.render("homepage.ejs", {
       data: JSON.stringify(data),
     });
@@ -35,7 +34,6 @@ let getCreate = (req, res) => {
 
 //[/post-crud]
 let postCRUD = async (req, res) => {
-  // console.log(req.body);
   let message = await createNewUser(req.body);
   console.log("message :", message);
   return res.send("post CRUD");
@@ -50,7 +48,6 @@ let getCRUD = async (req, res) => {
 //[/edit-crud]
 let getEditCRUD = async (req, res) => {
   const recordId = req.query.id;
-  // console.log("action:", action);
 
   if (recordId) {
     let user = await findOneById(recordId);
@@ -64,7 +61,6 @@ let getEditCRUD = async (req, res) => {
 //put-crud
 let putCRUD = async (req, res) => {
   let data = req.body;
-  // console.log("user edit:", data);
   let updateUser = await updateUserData(data);
   res.redirect("/get-crud");
 };
@@ -73,7 +69,6 @@ let deleteCRUD = async (req, res) => {
   let id = req.query.id;
   let result = await deleteOneUser(id);
   if (result) {
-    console.log(result);
     // res.status(200).json(result);
     res.redirect("/get-crud");
   }

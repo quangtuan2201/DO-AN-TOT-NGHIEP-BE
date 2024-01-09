@@ -5,11 +5,10 @@
     "database": "bookingcare",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "logging":false,
-    "timezone":"+07:00",
-    "charset":"utf-8",
-    "collate":"utf8_general_ci"
-
+    "logging": false,
+    "timezone": "+07:00",
+    "charset": "utf-8",
+    "collate": "utf8_general_ci"
   },
   "test": {
     "username": "root",

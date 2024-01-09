@@ -5,7 +5,6 @@ let salt = bcrypt.genSaltSync(10);
 let createNewUser = async (data) => {
   try {
     let hasPass = await hasPassword(data.password);
-    //     console.log("hasPass:", hasPass);
     data.password = hasPass;
     await db.User.create({
       email: data.email,
@@ -20,8 +19,8 @@ let createNewUser = async (data) => {
       // positionId: data.STRING,
     });
     return "create user success";
-  } catch (err) {
-    return `User creation failed :${err}`;
+  } catch (error) {
+    return `User creation failed :${error}`;
   }
 };
 let hasPassword = (password) => {
@@ -29,8 +28,8 @@ let hasPassword = (password) => {
     try {
       let hashPassword = await bcrypt.hashSync(password, salt);
       resole(hashPassword);
-    } catch (err) {
-      reject(err);
+    } catch (error) {
+      reject(error);
     }
   });
 };
@@ -40,8 +39,8 @@ let getAllUser = async () => {
     return await db.User.findAll({
       raw: true,
     });
-  } catch (err) {
-    return `Get user faild : ${err}`;
+  } catch (error) {
+    return `Get user faild : ${error}`;
   }
 };
 //[edit-crud]
@@ -57,14 +56,13 @@ const findOneById = async (userId) => {
     } else {
       return null;
     }
-  } catch (err) {
-    console.log(err);
-    throw err; // Ném lỗi để xử lý sau này (nếu cần)
+  } catch (error) {
+    console.error(error.message);
+    throw error; // Ném lỗi để xử lý sau này (nếu cần)
   }
 };
 //UpdataUserdata
 const updateUserData = async (data) => {
-  // console.log("id update", data.id);
   try {
     let user = await db.User.findOne({
       where: { id: data.id },
@@ -81,8 +79,8 @@ const updateUserData = async (data) => {
       res.send("Khong update duoc thong tin !");
     }
     return result;
-  } catch (err) {
-    console.log(`${err}`);
+  } catch (error) {
+    console.log(`${error}`);
   }
 };
 const deleteOneUser = async (id) => {
@@ -92,8 +90,8 @@ const deleteOneUser = async (id) => {
       raw: true,
     });
     return "Delete success!";
-  } catch (err) {
-    console.log(`deleteOneUser():${err}`);
+  } catch (error) {
+    console.error(`deleteOneUser():${err}`);
   }
 };
 

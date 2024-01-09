@@ -38,10 +38,8 @@ const getAllDoctors = async (req, res) => {
 const saveInfoDoctor = async (req, res) => {
   try {
     let newInfoDoctor = req.body;
-    // console.log("--->New Info doctor: ", newInfoDoctor);
     if (newInfoDoctor) {
       const response = await doctorService.handleSaveInfoDoctor(newInfoDoctor);
-      // console.log("data res controller: ", response);
       return response.data && response.errCode === 0
         ? res.status(201).json(response)
         : res.status(400).json(response);
@@ -57,14 +55,12 @@ const saveInfoDoctor = async (req, res) => {
 const getDetailDoctorById = async (req, res) => {
   try {
     const doctorId = req.query.id;
-    // console.log("Doctor ID: ", doctorId);
     if (!doctorId) {
       res
         .status(400)
         .json({ errCode: 1, message: "Missing requeid prsmeter!" });
     }
     const info = await doctorService.handleGetDetailDoctorById(doctorId);
-    // console.log("InFo detail doctor: ", info);
     if (info.data && info.errCode === 0) {
       res.status(200).json({
         errCode: 0,
@@ -166,7 +162,6 @@ const getInfoAddressClinic = async (req, res) => {
 const getProfileDoctorById = async (req, res) => {
   try {
     const doctorId = req?.query?.doctorId;
-    console.log("doctorId: ", doctorId);
     const response = await doctorService.handleGetProfileDoctorById(doctorId);
     if (response) {
       res.status(200).json(response);
@@ -186,7 +181,6 @@ const sendRemedy = async (req, res) => {
     const dataForm = req.body;
 
     const response = await doctorService.handlSendRemedy(dataForm);
-    console.log("trả về: ", response);
     if (response) {
       res.status(200).json(response);
     } else {

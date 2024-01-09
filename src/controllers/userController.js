@@ -6,8 +6,6 @@ const handleLogin = async (req, res) => {
   try {
     let email = req.body.email;
     let password = req.body.password;
-    // console.log("Email:", email);
-    // console.log("password: ", password);
     if (!email || !password) {
       return res.status.json({
         success: false,
@@ -15,16 +13,7 @@ const handleLogin = async (req, res) => {
       });
     }
     let user = await userService.checkEmail(email);
-    // console.log("Ktra email đã tồn tại :", user);
-    // const pass = await hashPassword.comparePasswords(password, user.password);
-    // console.log(
-    //   "check pass:",
-    //   pass,
-    //   "pasInput:",
-    //   password,
-    //   "passGetDb:",
-    //   user.password
-    // );
+
     const message = user
       ? (await hashPassword.comparePasswords(password, user.password))
         ? "Dang nhap thanh cong"
@@ -67,9 +56,7 @@ const handleGetUsers = async (req, res) => {
 };
 const handleDeleteUser = async (req, res) => {
   const userId = req.query.id;
-  // console.log(userId);
   const user = await userService.deleteUser(userId);
-  // console.log("DELETE user :", user);
   const response = user
     ? {
         errCode: 0,
@@ -106,9 +93,6 @@ const handleEditUsers = async (req, res) => {
 const handleCreateUser = async (req, res) => {
   const newUser = req.body;
   const createUser = await userService.createUser(newUser);
-  // console.log("CREATE_USER in userController.js__1; ", createUser.dataValues);
-  // console.log("CREATE_USER in userController.js__2", createUser);
-  // console.log("CHECK", createUser.dataValues === createUser);
   const response = createUser
     ? {
         errCode: 0,
@@ -158,6 +142,45 @@ const handlUpdateUsers = async (req, res) => {
       .json({ errCode: 1, error: "An error occurred while updating the user" });
   }
 };
+//[GET]: /api/specialty-search
+
+const getSearchResult = async (req, res) => {
+  try {
+    const keyword = req.query?.keyword;
+
+    if (!keyword) {
+      return res.status(400).json({
+        errCode: 1,
+        message: "Missing parameter keyword in the request.",
+      });
+    }
+    const response = await userService.handlGetSearchResult(keyword);
+    return res.status(response.errCode === 0 ? 200 : 404).json(response);
+  } catch (error) {
+    res.status(404).json({
+      errCode: -1,
+      message: `Error form server ${error.message}`,
+    });
+  }
+};
+
+const getStatisticsByDate = async (req, res) => {
+  try {
+    const { doctorId, startDateTime, endDateTime } = req.query;
+    const response = await userService.handlGetStatisticsByDate(req.query);
+    response
+      ? res.status(200).json(response)
+      : {
+          errCode: -1,
+          message: `Get data Statistics by date fail `,
+        };
+  } catch (error) {
+    res.status(404).json({
+      errCode: -1,
+      message: `Error form server ${error.message}`,
+    });
+  }
+};
 
 module.exports = {
   handleLogin,
@@ -167,4 +190,6 @@ module.exports = {
   handlUpdateUsers,
   handleCreateUser,
   handlGetAllCode,
+  getSearchResult,
+  getStatisticsByDate,
 };

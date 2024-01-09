@@ -58,33 +58,12 @@ const getSpecialtyById = async (req, res) => {
     });
   }
 };
-//[GET]: /api/specialty-search
 
-const getSearchResult = async (req, res) => {
-  try {
-    const keyword = req.query?.keyword;
-    console.log("Keyword: ", keyword);
 
-    if (!keyword) {
-      return res.status(400).json({
-        errCode: 1,
-        message: "Missing parameter keyword in the request.",
-      });
-    }
-    const response = await specialtyService.handlGetSearchResult(keyword);
-    return res.status(response.errCode === 0 ? 200 : 404).json(response);
-  } catch (error) {
-    res.status(404).json({
-      errCode: -1,
-      message: `Error form server ${error.message}`,
-    });
-  }
-};
 module.exports = {
   createNewSpecialty,
   getAllSpecialty,
   getSpecialtyById,
-  getSearchResult,
 };
 
 // {

@@ -40,9 +40,6 @@ const getListPatientForDoctor = async (req, res) => {
   try {
     const doctorId = req.query?.doctorId;
     const date = req.query?.date;
-    console.log("doctorId: ", doctorId);
-    console.log("date: ", date);
-
     if (!doctorId || !date) {
       res.status(404).json({
         errCode: 1,

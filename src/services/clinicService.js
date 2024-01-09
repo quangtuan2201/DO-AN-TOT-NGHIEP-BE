@@ -4,7 +4,6 @@ require("dotenv").config();
 
 const handlSaveInfoClinic = (infoClinic) => {
   try {
-    // console.log("Form data info clinic: ", infoClinic);
     const response = db.Clinic.create(
       {
         address: infoClinic?.address,
@@ -17,7 +16,6 @@ const handlSaveInfoClinic = (infoClinic) => {
         raw: true, // Thêm thuộc tính raw để trả về dữ liệu dưới dạng mảng thô
       }
     );
-    console.log("Save info clinic : ", response);
     return {
       errCode: 0,
       data: response,
@@ -48,11 +46,8 @@ const handlGetAllClinic = async () => {
           // Kiểm tra xem item.image có phải là chuỗi base64 không
           item.image = Buffer.from(item.image, "base64").toString("binary");
         }
-        console.log("Item image: ", item.image);
         return item; // Trả về item đã được sửa đổi
       });
-
-      console.log("listClinic: ", listClinic);
 
       return {
         errCode: 0,
@@ -60,7 +55,6 @@ const handlGetAllClinic = async () => {
         data: listClinic, // Trả về mảng đã được sửa đổi
       };
     } else {
-      console.log("Không tìm thấy phòng khám.");
       return {
         errCode: 1,
         message: "Không tìm thấy phòng khám.",
@@ -68,7 +62,7 @@ const handlGetAllClinic = async () => {
       };
     }
   } catch (error) {
-    console.log("Lỗi khi lấy thông tin tất cả phòng khám.");
+    console.error("Lỗi khi lấy thông tin tất cả phòng khám.");
     throw error;
   }
 };
@@ -80,7 +74,6 @@ const handlGetInfoClinicById = async (clinicId) => {
       where: { id: clinicId },
       raw: true,
     });
-    console.log("response: ", response);
     if (response) {
       // Kiểm tra response trước khi thực hiện xử lý image
       if (response.image) {
@@ -102,7 +95,7 @@ const handlGetInfoClinicById = async (clinicId) => {
       };
     }
   } catch (error) {
-    console.log("Get clinic by id failed: " + error.message);
+    console.error("Get clinic by id failed: " + error.message);
     throw error;
   }
 };

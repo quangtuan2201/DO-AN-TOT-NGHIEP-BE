@@ -1,4 +1,5 @@
 import db from "../models/index";
+const { Op } = require("sequelize");
 import { hashPassword } from "../utils/passwordUtils";
 
 const checkEmail = async (userEmail) => {
@@ -28,7 +29,7 @@ const getAllUsers = async (userId) => {
     let users = await db.User.findAll(option);
     return users;
   } catch (error) {
-    console.log("Loi khi lay nguoi dung ");
+    console.error("Loi khi lay nguoi dung ");
     throw error;
   }
 };
@@ -49,7 +50,6 @@ const editUser = async (newUser) => {
       attributes: { exclude: ["password"] },
       raw: false,
     });
-    // console.log("newUser:", newUser);
     if (user) {
       user.email = newUser.email;
       user.firstName = newUser.firstName;
@@ -72,7 +72,6 @@ const editUser = async (newUser) => {
   }
 };
 const createUser = async (newUser) => {
-  // console.log("NEW USER ; ", newUser);
   try {
     let hasPass = await hashPassword(newUser.password);
     newUser.password = hasPass;
@@ -102,7 +101,6 @@ const createUser = async (newUser) => {
         attributes: { exclude: ["password"] }, // Loại bỏ trường password từ kết quả trả về
       }
     );
-    // console.log("RESPONSE: ", response);
     return response;
   } catch (err) {
     return `User creation failed :${err}`;
@@ -110,7 +108,6 @@ const createUser = async (newUser) => {
 };
 const getAllCodeService = async (typeField) => {
   try {
-    // console.log("typeField");
     const type = typeField.type;
     const value = typeField.value;
     if (!typeField) {
@@ -144,6 +141,256 @@ const updateUser = async (updateField) => {
     throw error;
   }
 };
+//Lay thong tin chi tiet chuyen khoa bang id
+const handlGetSearchResult = async (keyword) => {
+  try {
+    let results = [];
+    const resultSpecialty = await db.Specialty.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${keyword}%`, // Tìm kiếm không phân biệt chữ hoa chữ thường
+        },
+      },
+      // exclude: ["image", "createdAt", "updatedAt"],
+      attributes: ["id", "name"],
+      raw: true,
+    });
+    const resultClinic = await db.Clinic.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${keyword}%`, // Tìm kiếm không phân biệt chữ hoa chữ thường
+        },
+      },
+      // exclude: ["image", "createdAt", "updatedAt"],
+      attributes: ["id", "name"],
+      raw: true,
+    });
+    const resultDoctor = await db.User.findAll({
+      where: {
+        roleId: "R2",
+        [Op.or]: [
+          {
+            firstName: {
+              [Op.like]: `%${keyword}%`,
+            },
+          },
+          {
+            lastName: {
+              [Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      include: [
+        {
+          model: db.Allcode,
+          as: "positionData",
+          attributes: ["valueEn", "valueVn"],
+        },
+      ],
+      attributes: ["id", "firstName", "lastName"],
+      raw: true,
+      nest: true,
+    });
+
+    if (Array.isArray(resultClinic) && resultClinic.length > 0) {
+      let clinic = resultClinic.map((item) => {
+        return {
+          ...item,
+        };
+      });
+      results.push({
+        type: "clinic",
+        result: clinic,
+      });
+    }
+    if (Array.isArray(resultSpecialty) && resultSpecialty.length > 0) {
+      let specialty = resultSpecialty.map((item) => {
+        return {
+          ...item,
+        };
+      });
+      results.push({
+        type: "specialty",
+        result: specialty,
+      });
+    }
+    if (Array.isArray(resultDoctor) && resultDoctor.length > 0) {
+      let doctor = resultDoctor.map((item) => {
+        return {
+          ...item,
+        };
+      });
+      results.push({
+        type: "doctor",
+        result: doctor,
+      });
+    }
+    // const results = [...resultClinic, ...resultSpecialty];
+    if (Array.isArray(results) && results.length > 0) {
+      return {
+        errCode: 0,
+        message: "Specialty search success.",
+        data: results,
+      };
+    } else {
+      return {
+        errCode: 1,
+        message: "Specialty search fail.",
+      };
+    }
+  } catch (error) {
+    console.error("", error.message);
+    return {
+      errCode: 500,
+      message: "Internal Server Error",
+      error: error.message,
+    };
+  }
+};
+//Lay data thông ke ng dung dat lẹnh kham
+// const handlGetStatisticsByDate = async ({
+//   doctorId,
+//   startDateTime,
+//   endDateTime,
+// }) => {
+//   const STATUS_KEYS = ["S1", "S2", "S3", "S4"];
+//   try {
+//     console.log("FormDataa: ", { doctorId, startDateTime, endDateTime });
+//     if (!doctorId || !startDateTime || !endDateTime) {
+//       return {
+//         errCode: -1,
+//         message: `Missing param !`,
+//       };
+//     }
+//     // let doctor = await db.Booking.findAll({
+//     //   attributes: ["doctorId", "patientId", "statusId", "timeType", "date"],
+//     //   where: {
+//     //     doctorId: formData.doctorId,
+//     //     statusId: "S3",
+//     //     date: {
+//     //       [Op.between]: [formData.startDateTime, formData.endDateTime],
+//     //     },
+//     //   },
+//     //   raw: true,
+//     // });
+//     const isDoctors = doctorId==='ALL'?(
+//       console.log()
+//     )
+//   : await db.Booking.findOne({ where: { doctorId } });
+//     console.log("IsDoctor: ", isDoctor);
+
+//     if (isDoctor) {
+//       const getStatusCount = async (statusId) => {
+//         return await db.Booking.count({
+//           where: {
+//             statusId,
+//             date: { [Op.between]: [startDateTime, endDateTime] },
+//           },
+//           raw: true,
+//         });
+//       };
+
+//       const successfulBookings = await getStatusCount("S3");
+//       const confirmBookings = await getStatusCount("S2");
+//       const canceledBookings = await getStatusCount("S4");
+//       const unconfirmedBookings = await getStatusCount("S1");
+
+//       return {
+//         errCode: 0,
+//         data: {
+//           successfulBookings,
+//           confirmBookings,
+//           canceledBookings,
+//           unconfirmedBookings,
+//         },
+//       };
+//     } else {
+//       return {
+//         errCode: 1,
+//         message: "Bác sĩ không có lịch đặt khám.",
+//       };
+//     }
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+const handlGetStatisticsByDate = async ({
+  doctorId,
+  startDateTime,
+  endDateTime,
+}) => {
+  const STATUS_KEYS = ["S1", "S2", "S3", "S4"];
+  try {
+    if (!startDateTime || !endDateTime) {
+      return {
+        errCode: -1,
+        message: "Missing startDateTime or endDateTime!",
+      };
+    }
+
+    if (doctorId === "ALL") {
+      const getStatusCount = async (statusId) => {
+        return await db.Booking.count({
+          where: {
+            statusId,
+            date: { [Op.between]: [startDateTime, endDateTime] },
+          },
+          raw: true,
+        });
+      };
+
+      const statistics = {};
+
+      for (const statusId of STATUS_KEYS) {
+        statistics[statusId] = await getStatusCount(statusId);
+      }
+
+      return {
+        errCode: 0,
+        data: statistics,
+      };
+    } else {
+      const isDoctor = await db.Booking.findOne({ where: { doctorId } });
+
+      if (isDoctor) {
+        const getStatusCount = async (statusId) => {
+          return await db.Booking.count({
+            where: {
+              doctorId,
+              statusId,
+              date: { [Op.between]: [startDateTime, endDateTime] },
+            },
+            raw: true,
+          });
+        };
+
+        const successfulBookings = await getStatusCount("S3");
+        const confirmBookings = await getStatusCount("S2");
+        const canceledBookings = await getStatusCount("S4");
+        const unconfirmedBookings = await getStatusCount("S1");
+
+        return {
+          errCode: 0,
+          data: {
+            S1: unconfirmedBookings,
+            S2: confirmBookings,
+            S3: successfulBookings,
+            S4: canceledBookings,
+          },
+        };
+      } else {
+        return {
+          errCode: 1,
+          message: "Bác sĩ không có lịch đặt khám.",
+        };
+      }
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   checkEmail,
   getAllUsers,
@@ -152,4 +399,6 @@ module.exports = {
   deleteUser,
   createUser,
   getAllCodeService,
+  handlGetSearchResult,
+  handlGetStatisticsByDate,
 };
