@@ -506,6 +506,7 @@ const handleGetProfileDoctorById = async (doctorId) => {
 // };
 const handlSendRemedy = async (data) => {
   try {
+    console.log("Thông tin xác nhận lịch hẹn : ", data);
     const { email, doctorId, patientId, timeType, status } = data;
     if (!email || !doctorId || !patientId || !timeType || !status) {
       return {
@@ -534,6 +535,12 @@ const handlSendRemedy = async (data) => {
       const action = statusActions[status];
       appointment.statusId = action.newStatus;
       await appointment.save();
+      await db.History.create({
+        doctorId: data.doctorId,
+        patientId: data.patientId,
+        description: data.description,
+        files: data.imageBase64,
+      });
       await action.emailFunction(data);
     }
 

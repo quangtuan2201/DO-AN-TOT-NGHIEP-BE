@@ -1,6 +1,7 @@
 import db from "../models/index";
 const { Op } = require("sequelize");
 import { hashPassword } from "../utils/passwordUtils";
+import _, { includes } from "lodash";
 
 const checkEmail = async (userEmail) => {
   try {
@@ -390,6 +391,91 @@ const handlGetStatisticsByDate = async ({
     throw error;
   }
 };
+const handlGetHistoryBookingByDate = async (data) => {
+  try {
+    const { doctorId, startDateTime, endDateTime } = data;
+    if (!doctorId || !startDateTime || !endDateTime) {
+      return {
+        errCode: 1,
+        message: `Missing parameter!`,
+      };
+    }
+    const response = await db.Booking.findAll({
+      where: {
+        statusId: { [Op.in]: ["S2", "S3", "S4"] },
+        doctorId: doctorId,
+        date: { [Op.between]: [startDateTime, endDateTime] },
+      },
+      attributes: {
+        exclude: ["id", "token", "updatedAt", "timeType"],
+      },
+      include: [
+        {
+          model: db.History,
+          as: "historysData",
+          attributes: ["description", "files"],
+        },
+        {
+          model: db.Allcode,
+          as: "bookTimeData",
+          attributes: ["valueVn", "valueEn"],
+        },
+        {
+          model: db.Allcode,
+          as: "statusData",
+          attributes: ["valueVn", "valueEn"],
+        },
+        {
+          model: db.User,
+          as: "patientData",
+          attributes: [
+            "email",
+            "firstName",
+            "address",
+            "phoneNumber",
+            "createdAt",
+          ],
+          include: [
+            // {
+            //   model: db.Allcode,
+            //   as: "timeTypeData",
+            //   attributes: ["valueVn", "valueEn"],
+            // },
+            {
+              model: db.Allcode,
+              as: "genderData",
+              attributes: ["valueVn", "valueEn"],
+            },
+          ],
+        },
+      ],
+      raw: true,
+      nest: true,
+    });
+    if (response && response.length > 0) {
+      let data = response.map((item, index) => {
+        if (item.historysData.files) {
+          item.historysData.files = Buffer.from(
+            item.historysData.files,
+            "base64"
+          ).toString("binary");
+        }
+        return item; // Trả về item đã được sửa đổi
+      });
+      return {
+        errCode: 0,
+        data,
+      };
+    } else {
+      return {
+        errCode: 2,
+        message: "Không có lịch đặt nào của bác sĩ trong hệ thống",
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+};
 
 module.exports = {
   checkEmail,
@@ -401,4 +487,5 @@ module.exports = {
   getAllCodeService,
   handlGetSearchResult,
   handlGetStatisticsByDate,
+  handlGetHistoryBookingByDate,
 };

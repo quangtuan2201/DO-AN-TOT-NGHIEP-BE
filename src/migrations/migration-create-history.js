@@ -18,7 +18,8 @@ module.exports = {
         type: Sequelize.TEXT,
       },
       files: {
-        type: Sequelize.TEXT,
+        type: Sequelize.BLOB("long"),
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

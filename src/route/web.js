@@ -45,6 +45,11 @@ let initWebRoutes = (app) => {
   router.get("/api/allcode", userController.handlGetAllCode);
   //[GET]: get-statistics-by-date
   router.get("/api/get-statistics-by-date", userController.getStatisticsByDate);
+  //[GET]:get-historys-booking-by-date
+  router.get(
+    "/api/get-historys-booking-by-date",
+    userController.getHistorysByDate
+  );
   //[GET] //api/top-doctor-home
   router.get("/api/top-doctor-home", doctorController.getTopDoctorHome);
   //[GET] //api/get-all-doctors

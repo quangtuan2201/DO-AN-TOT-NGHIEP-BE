@@ -106,6 +106,7 @@ const getBodyHTMLEmailRemedy = (dataSend) => {
     result = ` <h3>Xin chào ${dataSend.firstName}! </h3>
     <p>Bạn nhận được vì trước đó bạn đã đặt lịch khám bệnh online trên BookingCare thành công. </p>
     <p><strong>Thông tin đặt lịch khám bệnh:</strong> </p>
+    <p><strong>Ghi chú:</strong>${dataSend.description}</p>
     <p>Thông tin đơn thuốc / hóa đơn được gửi trong file đính kèm </p>
     <div><i>Xin chân thành cảm ơn!</i></div>
   `;
@@ -146,13 +147,13 @@ const getBodyHTMLEmailCancel = (dataSend) => {
   if (dataSend.language === "vi") {
     result = ` <h3>Xin chào ${dataSend.firstName}! </h3>
     <p>Bạn nhận được vì trước đó bạn đã đặt lịch khám bệnh online trên BookingCare đã bị hủy. </p>
-    <p><strong>Lý do bị hủy:</strong>${dataSend.reason} </p>
+    <p><strong>Lý do bị hủy:</strong>${dataSend.description} </p>
     <div><i>Bạn có thể liện hệ số điện thoại hostline để được hỗ trợ hoặc có thể đến trực tiếp cơ sở để nhận được tư vấn ! Xin chân thành cảm ơn!</i></div>
   `;
   } else {
     result = `<h3>Dear ${dataSend.firstName}! </h3>
     <p>You receive this because you previously booked an online medical appointment on BookingCare that was canceled. </p>
-    <p><strong>Reason for cancellation:</strong>${dataSend.reason} </p>
+    <p><strong>Reason for cancellation:</strong>${dataSend.description} </p>
     <div><i>You can contact the hostline phone number for support or you can come directly to the facility to receive advice! Thank you very much!</i></div>`;
   }
   return result;

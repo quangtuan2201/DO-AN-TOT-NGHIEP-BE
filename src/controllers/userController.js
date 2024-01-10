@@ -176,8 +176,25 @@ const getStatisticsByDate = async (req, res) => {
         };
   } catch (error) {
     res.status(404).json({
-      errCode: -1,
-      message: `Error form server ${error.message}`,
+      errCode: -2,
+      message: `Error from server ${error.message}`,
+    });
+  }
+};
+//
+const getHistorysByDate = async (req, res) => {
+  try {
+    const response = await userService.handlGetHistoryBookingByDate(req.query);
+    response
+      ? res.status(200).json(response)
+      : res.status(200).json({
+          errCode: -1,
+          message: "Get history by date fail",
+        });
+  } catch (error) {
+    res.status(404).json({
+      error: -2,
+      message: `Error from server ${error.message}`,
     });
   }
 };
@@ -192,4 +209,5 @@ module.exports = {
   handlGetAllCode,
   getSearchResult,
   getStatisticsByDate,
+  getHistorysByDate,
 };
