@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "keyMap",
         as: "genderData",
       });
+      User.belongsTo(models.Allcode, {
+        foreignKey: "roleId",
+        targetKey: "keyMap",
+        as: "roleData",
+      });
       // User.belongsTo(models.Specialty, {
       //   foreignKey: "specialtyId",
       //   targetKey: "id",

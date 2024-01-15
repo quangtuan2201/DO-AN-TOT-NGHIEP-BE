@@ -27,7 +27,28 @@ const getAllUsers = async (userId) => {
       : {
           attributes: { exclude: ["password"] },
         };
-    let users = await db.User.findAll(option);
+    let users = await db.User.findAll({
+      ...option,
+      include: [
+        {
+          model: db.Allcode,
+          as: "positionData",
+          attributes: ["valueVn", "valueEn"],
+        },
+        {
+          model: db.Allcode,
+          as: "genderData",
+          attributes: ["valueVn", "valueEn"],
+        },
+        {
+          model: db.Allcode,
+          as: "roleData",
+          attributes: ["valueVn", "valueEn"],
+        },
+      ],
+      raw: true,
+      nest: true,
+    });
     return users;
   } catch (error) {
     console.error("Loi khi lay nguoi dung ");

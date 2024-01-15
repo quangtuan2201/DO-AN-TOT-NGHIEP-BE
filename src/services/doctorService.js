@@ -30,6 +30,21 @@ const getTopDoctorHome = async (limit, roleId = "R2") => {
           as: "genderData",
           attributes: ["valueEn", "valueVn"],
         },
+        {
+          model: db.Doctor_Info,
+          include: [
+            {
+              model: db.Specialty,
+              as: "specialtyData",
+              attributes: {
+                exclude: ["image"],
+              },
+            },
+          ],
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
       ],
       raw: true,
       nest: true,
@@ -121,7 +136,7 @@ const handleSaveInfoDoctor = async (infoDoctor) => {
       };
     } else {
       if (infoDoctor.action === "CREATE") {
-        console.log("CREATE !");
+        // console.log("CREATE !");
         const create_markdown = db.Markdown.create(
           {
             doctorId: infoDoctor?.doctorId,
@@ -278,7 +293,7 @@ const handlbulkCreateSchedule = async (data) => {
     let toCreate = _.differenceWith(bookingInfoList, existing, (a, b) => {
       return a.timeType === b.timeType && +a.date === +b.date;
     });
-    console.log("---toCreate: ", toCreate);
+    // console.log("---toCreate: ", toCreate);
     if (toCreate && toCreate.length > 0) {
       const response = await db.Schedule.bulkCreate(toCreate);
       return {
@@ -388,7 +403,7 @@ const handlGetInfoAddressClinic = async (doctorId) => {
       };
     }
   } catch (error) {
-    console.log(`Get address info doctor fail ${error.message}`);
+    console.error(`Get address info doctor fail ${error.message}`);
   }
 };
 
@@ -506,7 +521,7 @@ const handleGetProfileDoctorById = async (doctorId) => {
 // };
 const handlSendRemedy = async (data) => {
   try {
-    console.log("Thông tin xác nhận lịch hẹn : ", data);
+    // console.log("Thông tin xác nhận lịch hẹn : ", data);
     const { email, doctorId, patientId, timeType, status } = data;
     if (!email || !doctorId || !patientId || !timeType || !status) {
       return {
@@ -550,7 +565,7 @@ const handlSendRemedy = async (data) => {
       data: appointment,
     };
   } catch (error) {
-    console.log(`Error: ${error.message}`);
+    console.error(`Error: ${error.message}`);
     throw error;
   }
 };

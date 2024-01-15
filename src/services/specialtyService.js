@@ -32,7 +32,6 @@ const handlCreateNewSpecialy = async (formData) => {
     }
   } catch (error) {
     return new Error(`${error.mesage}`);
-    throw error;
   }
 };
 // Lấy tất cả danh sách chuyên khoa

@@ -14,6 +14,7 @@ import doctorController from "../controllers/doctorController";
 import patientController from "../controllers/patientController";
 import specialtyController from "../controllers/specialtyController";
 import clinicController from "../controllers/clinicController";
+import handBookController from "../controllers/handBookController";
 
 let router = express.Router();
 let initWebRoutes = (app) => {
@@ -100,9 +101,6 @@ let initWebRoutes = (app) => {
   router.get("/api/get-all-specialty", specialtyController.getAllSpecialty);
   //[GET] //api/get-all-specialty
   router.get("/api/get-specialty-by-id", specialtyController.getSpecialtyById);
-  ///////////////////////////////////////////
-  //specialized search results
-  ///////////////////////////////////////////
   //[POST] /api/save-info-clinic
   router.post("/api/save-info-clinic", clinicController.saveInfoClinic);
   //[GET] //api/get-all-clinic
@@ -114,6 +112,12 @@ let initWebRoutes = (app) => {
     "/api/get-list-patient-for-doctor",
     patientController.getListPatientForDoctor
   );
+  //[GET]: /api/create-new-handbook
+  router.post("/api/create-new-handbook", handBookController.createNewHanbook);
+  //[GET] : /api/get-all-handbooks
+  router.get("/api/get-all-handbooks", handBookController.getAllHandBooks);
+  //[GET]: /api/get-detail-hanbook
+  router.get("/api/get-detail-hanbook", handBookController.getDetailHanbook);
 
   return app.use("/", router);
 };
