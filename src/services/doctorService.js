@@ -62,7 +62,7 @@ const getTopDoctorHome = async (limit, roleId = "R2") => {
 const handlGetAllDoctors = async () => {
   try {
     const response = await db.User.findAll({
-      order: [["createdAt", "DESC"]],
+      order: [["createdAt", "ASC"]],
       attributes: {
         exclude: ["password", "image"],
       },
@@ -521,7 +521,7 @@ const handleGetProfileDoctorById = async (doctorId) => {
 // };
 const handlSendRemedy = async (data) => {
   try {
-    // console.log("Thông tin xác nhận lịch hẹn : ", data);
+    console.log("Thông tin xác nhận lịch hẹn : ", data);
     const { email, doctorId, patientId, timeType, status } = data;
     if (!email || !doctorId || !patientId || !timeType || !status) {
       return {

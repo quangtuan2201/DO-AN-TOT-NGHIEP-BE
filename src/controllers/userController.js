@@ -13,12 +13,16 @@ const handleLogin = async (req, res) => {
       });
     }
     let user = await userService.checkEmail(email);
-
+    const checkPass = await hashPassword.comparePasswords(
+      password,
+      user.password
+    );
     const message = user
       ? (await hashPassword.comparePasswords(password, user.password))
         ? "Dang nhap thanh cong"
         : "Sai mat khau"
       : "Email khong hop le!";
+    delete user.password;
     const status = user
       ? message.includes("Dang nhap thanh cong")
         ? 200

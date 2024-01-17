@@ -3,6 +3,8 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 import emailService from "./emailService";
 import { v4 as uuidv4 } from "uuid";
+const { Op } = require("sequelize");
+import moment from "moment";
 // let id = uuidv4();
 
 const builURLEmail = (doctorId, token) => {
@@ -52,26 +54,70 @@ const handlSaveBookAppoientment = async (patientInfo) => {
         },
         // raw: true,
       });
+
       //create a booking record
       if (isUser && isUser[0]) {
-        console.log("Check --> true");
-        const response = await db.Booking.findOrCreate({
-          where: { patientId: isUser[0].id },
-          defaults: {
+        // Kiểm tra nếu người dùng đã có lịch đã hủy trước đó
+        const canceledOrDoneAppointment = await db.Booking.findOne({
+          where: {
+            patientId: isUser[0].id,
+            [Op.or]: [{ statusId: "S4" }, { statusId: "S3" }], // Trạng thái cho cuộc hẹn đã hủy hoặc đã khám xong
+          },
+        });
+
+        if (canceledOrDoneAppointment) {
+          // Người dùng đã có lịch đã hủy, có thể tái đặt lịch
+
+          // Thực hiện đặt lịch mới hoặc cập nhật thông tin lịch đã hủy
+          const [newBooking, created] = await db.Booking.findOrCreate({
+            where: { token: canceledOrDoneAppointment.token },
+            defaults: {
+              statusId: "S1", // Trạng thái mới
+              doctorId: patientInfo.doctorId,
+              patientId: patientInfo.userId,
+              date: patientInfo.date,
+              timeType: patientInfo.timeType,
+              token,
+            },
+          });
+
+          if (!created) {
+            // Cập nhật thông tin lịch đã hủy
+            const updateBooking = await canceledOrDoneAppointment.update({
+              statusId: "S1",
+              doctorId: patientInfo.doctorId,
+              date: patientInfo.date,
+              timeType: patientInfo.timeType,
+              token,
+            });
+            return {
+              errCode: 0,
+              data: updateBooking,
+              message: "Cập nhật lịch đặt thành công",
+            };
+          }
+
+          return {
+            errCode: 0,
+            data: newBooking,
+            message: "Đặt lại lịch thành công!",
+          };
+        } else {
+          // Xử lý các tình huống khác
+          const newPatientBook = await db.Booking.create({
             statusId: "S1",
             doctorId: patientInfo.doctorId,
             patientId: isUser[0].id,
             date: patientInfo.date,
             timeType: patientInfo.timeType,
             token,
-          },
-        });
-        console.log("response : ", response);
-        return {
-          errCode: 0,
-          data: response,
-          message: "Save info patient appientment success !",
-        };
+          });
+          return {
+            errCode: 0,
+            data: newPatientBook,
+            message: "Người dùng tạo mới đặt lịch hẹn thành công.",
+          };
+        }
       } else {
         return {
           errCode: 1,
@@ -103,7 +149,6 @@ const handlSaveVerifyAppointment = async (data) => {
       },
       // raw: true,
     });
-    console.log("Appointment: ", appointment);
     if (appointment) {
       await appointment.update({
         statusId: "S2",
@@ -166,7 +211,7 @@ const handlGetListPatientForDoctor = async (doctorId, date) => {
       };
     }
   } catch (error) {
-    console.log(`Error get list patient doctor, ${error.message}`);
+    console.error(`Error get list patient doctor, ${error.message}`);
     throw error;
   }
 };
@@ -177,8 +222,3 @@ module.exports = {
   handlSaveVerifyAppointment,
   handlGetListPatientForDoctor,
 };
-//  statusId: patientInfo.statusId,
-//  doctorId: patientInfo.doctorId,
-//  patientid: patientInfo.patientId,
-//  date: patientInfo.date,
-//  timeType: patientInfo.timeType,

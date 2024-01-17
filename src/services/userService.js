@@ -6,7 +6,14 @@ import _, { includes } from "lodash";
 const checkEmail = async (userEmail) => {
   try {
     let result = await db.User.findOne({
-      attributes: ["id", "email", "roleId", "firstName", "lastName"],
+      attributes: [
+        "id",
+        "email",
+        "roleId",
+        "firstName",
+        "lastName",
+        "password",
+      ],
       where: { email: userEmail },
       raw: true,
     });
