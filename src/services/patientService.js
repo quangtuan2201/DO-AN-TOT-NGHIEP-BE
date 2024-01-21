@@ -121,7 +121,7 @@ const handlSaveBookAppoientment = async (patientInfo) => {
       } else {
         return {
           errCode: 1,
-          message: "Save info patient appientment fail !",
+          message: "Lưu thông tin đặt lịch thất bại!",
         };
       }
     }

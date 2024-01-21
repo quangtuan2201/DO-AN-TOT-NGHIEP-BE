@@ -146,8 +146,8 @@ const handlUpdateUsers = async (req, res) => {
       .json({ errCode: 1, error: "An error occurred while updating the user" });
   }
 };
-//[GET]: /api/specialty-search
 
+//[GET]: /api/specialty-search
 const getSearchResult = async (req, res) => {
   try {
     const keyword = req.query?.keyword;
